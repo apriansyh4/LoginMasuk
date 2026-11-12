@@ -64,7 +64,10 @@ export const healthSchema = z.object({
   gpuName: z.string().nullable(),
   reconstructionAvailable: z.boolean(),
   reconstructionReason: z.string().nullable().optional(),
+  reconstructionDevice: z.string().nullable().optional(),
+  cpuMode: z.boolean().optional().default(false),
   modelVersion: z.string().nullable(),
+  queueLength: z.number().int().optional().default(0),
   detectors: z.record(z.string(), z.object({ name: z.string(), state: z.string() }).loose()),
 });
 export type AiHealth = z.infer<typeof healthSchema>;
@@ -80,9 +83,10 @@ function base() {
   return { url: env.AI_SERVICE_URL.replace(/\/$/, ''), headers: { 'x-service-token': env.AI_SERVICE_SECRET } };
 }
 
+/** null = unreachable, misconfigured or invalid response (never throws). */
 export async function getAiHealth(): Promise<AiHealth | null> {
-  const { url, headers } = base();
   try {
+    const { url, headers } = base();
     const r = await fetch(`${url}/health`, { headers, cache: 'no-store', signal: AbortSignal.timeout(15_000) });
     if (!r.ok) return null;
     return healthSchema.parse(await r.json());
@@ -112,4 +116,23 @@ export async function validateImage(image: Buffer): Promise<ValidationResult> {
   // Defence in depth: a "valid" result must not carry reasons.
   if (parsed.data.isValid && parsed.data.rejectionReasons.length > 0) throw new AiServiceError('AI_SERVICE_BAD_RESPONSE');
   return parsed.data;
+}
+
+/** Hand a queued job to the ai-service worker. */
+export async function submitAiJob(jobId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    const { url, headers } = base();
+    const r = await fetch(`${url}/jobs`, {
+      method: 'POST',
+      headers: { ...headers, 'content-type': 'application/json' },
+      body: JSON.stringify({ jobId }),
+      cache: 'no-store',
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (r.status === 202) return { ok: true };
+    if (r.status === 429) return { ok: false, error: 'QUEUE_FULL' };
+    return { ok: false, error: 'ENGINE_UNAVAILABLE' };
+  } catch {
+    return { ok: false, error: 'ENGINE_UNAVAILABLE' };
+  }
 }

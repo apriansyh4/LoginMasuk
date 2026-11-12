@@ -30,6 +30,12 @@ def client(engine: ValidationEngine | None = None, models_dir: Path = MODELS) ->
     return TestClient(create_app(s, engine))
 
 
+def test_jobs_rejects_bad_body(tmp_path):
+    with client(models_dir=tmp_path) as c:
+        r = c.post("/jobs", json={"jobId": "not-a-uuid"}, headers={"x-service-token": SECRET})
+        assert r.status_code == 422
+
+
 def test_requires_shared_secret(tmp_path):
     with client(models_dir=tmp_path) as c:
         assert c.get("/health").status_code == 401
@@ -57,8 +63,12 @@ def test_fails_closed_when_detectors_missing(tmp_path):
 
 def test_jobs_endpoint_is_honestly_unavailable(tmp_path):
     with client(models_dir=tmp_path) as c:
-        r = c.post("/jobs", headers={"x-service-token": SECRET})
+        r = c.post("/jobs", json={"jobId": "6f1c1f0e-1f7e-4a39-9a55-1c0d6f3e0b11"}, headers={"x-service-token": SECRET})
         assert r.status_code == 503 and r.json()["error"] == "RECONSTRUCTION_UNAVAILABLE"
+        # health says why: no GPU and CPU not allowed, or no weights / torch
+        h = c.get("/health", headers={"x-service-token": SECRET}).json()
+        assert h["reconstructionAvailable"] is False
+        assert h["reconstructionReason"] in {"no_gpu", "missing_weights", "missing_dependency"}
 
 
 def test_payload_too_large(tmp_path):

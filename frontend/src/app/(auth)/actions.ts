@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { publicEnv, serverEnv } from '@/lib/env';
 import { safeNext } from '@/lib/redirect';
 import { createClient } from '@/lib/supabase/server';
-import { hitRateLimit, RateLimited } from '@/server/rate-limit';
+import { hitRateLimit, RateLimited, RateLimiterUnavailable } from '@/server/rate-limit';
 
 export type FormState = { error?: string; ok?: string } | undefined;
 
@@ -22,12 +22,14 @@ async function clientIp(): Promise<string> {
   return (h.get('x-forwarded-for')?.split(',')[0] ?? h.get('x-real-ip') ?? 'unknown').trim().slice(0, 64);
 }
 
-async function limit(bucket: string, subjects: string[], windowS: number, max: number): Promise<boolean> {
+/** Returns null when allowed, otherwise the error key to show. */
+async function limit(bucket: string, subjects: string[], windowS: number, max: number): Promise<string | null> {
   try {
     for (const s of subjects) await hitRateLimit(bucket, s, windowS, max);
-    return true;
+    return null;
   } catch (e) {
-    if (e instanceof RateLimited) return false;
+    if (e instanceof RateLimited) return 'rateLimited';
+    if (e instanceof RateLimiterUnavailable) return 'serviceUnavailable';
     throw e;
   }
 }
@@ -39,8 +41,8 @@ export async function loginAction(_: FormState, form: FormData): Promise<FormSta
   });
   if (!parsed.success) return { error: 'invalidCredentials' };
   const ip = await clientIp();
-  if (!(await limit('login', [`ip:${ip}`, `email:${parsed.data.email}`], 900, serverEnv().RATE_LIMIT_LOGIN_PER_15MIN)))
-    return { error: 'rateLimited' };
+  const blocked = await limit('login', [`ip:${ip}`, `email:${parsed.data.email}`], 900, serverEnv().RATE_LIMIT_LOGIN_PER_15MIN);
+  if (blocked) return { error: blocked };
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) {
@@ -69,7 +71,8 @@ export async function registerAction(_: FormState, form: FormData): Promise<Form
     return { error: field === 'password' ? 'passwordHint' : field === 'consent' ? 'consentRequired' : 'errorGeneric' };
   }
   const ip = await clientIp();
-  if (!(await limit('register', [`ip:${ip}`], 3600, serverEnv().RATE_LIMIT_REGISTER_PER_HOUR))) return { error: 'rateLimited' };
+  const blocked = await limit('register', [`ip:${ip}`], 3600, serverEnv().RATE_LIMIT_REGISTER_PER_HOUR);
+  if (blocked) return { error: blocked };
   const supabase = await createClient();
   const next = safeNext(String(form.get('next') ?? ''));
   const { error } = await supabase.auth.signUp({
@@ -90,7 +93,8 @@ export async function forgotAction(_: FormState, form: FormData): Promise<FormSt
   const parsed = email.safeParse(form.get('email'));
   if (!parsed.success) return { error: 'errorGeneric' };
   const ip = await clientIp();
-  if (!(await limit('reset', [`ip:${ip}`, `email:${parsed.data}`], 3600, 5))) return { error: 'rateLimited' };
+  const blocked = await limit('reset', [`ip:${ip}`, `email:${parsed.data}`], 3600, 5);
+  if (blocked) return { error: blocked };
   const supabase = await createClient();
   await supabase.auth.resetPasswordForEmail(parsed.data, {
     redirectTo: `${publicEnv().NEXT_PUBLIC_APP_URL}/auth/callback?next=/reset-password`,
@@ -113,7 +117,8 @@ export async function resendAction(_: FormState, form: FormData): Promise<FormSt
   const parsed = email.safeParse(form.get('email'));
   if (!parsed.success) return { error: 'errorGeneric' };
   const ip = await clientIp();
-  if (!(await limit('resend', [`ip:${ip}`, `email:${parsed.data}`], 3600, 3))) return { error: 'rateLimited' };
+  const blocked = await limit('resend', [`ip:${ip}`, `email:${parsed.data}`], 3600, 3);
+  if (blocked) return { error: blocked };
   const supabase = await createClient();
   await supabase.auth.resend({
     type: 'signup',

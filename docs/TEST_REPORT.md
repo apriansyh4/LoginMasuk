@@ -80,3 +80,55 @@ E2E_BASE_URL=http://localhost:3000 E2E_MAILPIT_URL=http://127.0.0.1:54324 npx pl
 
 ## Manual AR device checklist
 Not applicable until M3.
+
+---
+
+# Test report: Milestone 2 (3D generation) + deployment fixes
+
+Date: 2026-11-12. Same environment as M1: **no GPU, no huggingface.co**. TripoSR real weights could not be downloaded here.
+
+## Summary
+| Suite | Command | Result |
+|---|---|---|
+| DB (adds one-active-job index, profile backfill, user can't alter jobs) | `cd supabase/tests && npm test` | **39 passed** |
+| ai-service: unit + validation fixtures + reconstruction + job runner + **real Supabase stack** | `AILOKAL_TEST_SUPABASE_URL=… AILOKAL_TEST_SUPABASE_KEY=… pytest -q` | **68 passed**, 2 skipped (category: no OpenCLIP), 1 xfail (cherub) |
+| ai-service lint | `ruff check . && ruff format --check .` | clean (vendored `third_party/` excluded) |
+| Frontend unit | `npm test` | **95 passed** |
+| Types / lint / format / build | `tsc --noEmit`, `eslint`, `prettier --check`, `next build` | clean; 26 routes |
+| E2E (real GoTrue + PostgREST + Storage, real ai-service, `next start`) | `E2E_AI_MODE=partial npx playwright test` | **17 passed**, 2 skipped (other mode, screenshots) |
+| Runtime audit | `npm audit --omit=dev` | 0 vulnerabilities |
+
+## What the M2 tests prove
+| Brief requirement (§7, §15 Generation, M2 exit) | Evidence | Status |
+|---|---|---|
+| Invalid image **never** reaches `ai-service/jobs` | API returns 409 `VALIDATION_NOT_PASSED` (E2E); DB trigger refuses the job (DB + real-stack test); the worker re-checks and never calls the engine (`test_invalid_validation_never_reaches_the_engine`) | ✅ |
+| Real TripoSR code path | `test_engine_end_to_end_with_real_triposr_code`: vendored TripoSR forward → scikit-image marching cubes → colours → post-processing → GLB → reload (tiny random-weight model, CPU) | ✅ integration / ❌ **real weights not run** |
+| Valid fixture → real GLB on GPU (`@gpu`) | needs GPU + weights | ❌ **not run** |
+| GLB re-loads before success | `verify_glb` in pipeline; tests incl. corrupt GLB | ✅ |
+| Mesh validation (empty, non-finite, faces, decimation, fragments, colour, bbox) | `test_reconstruction.py` | ✅ |
+| Y-up, centred, base on Y=0; user size in metres; default size per category | unit + real-stack test (30 cm seller height → 0.30 m) | ✅ |
+| Stages `validating_image → … → preparing_ar_asset` reported in order | runner test (in-memory) + real-stack test; progress page E2E | ✅ |
+| Failure → `failed` with retry; cancel; restart recovery; queue cap | runner tests + real-stack test + E2E (cancel, retry) | ✅ |
+| Timeout | implemented between steps (ADR-022) | ⚠️ not exercised by a test |
+| CUDA OOM → one retry at lower resolution | implemented | ⚠️ not testable without a GPU |
+| GPU unavailable → honest state | `/health` `reconstructionAvailable:false, reason:no_gpu`; button disabled + message; API 503; no job, no quota (E2E) | ✅ |
+| Quotas + remaining quota shown | quota API + button text; queue cap | ✅ (daily-limit exhaustion not E2E-tested) |
+| Realtime progress | channel on `generation_jobs` (RLS) | ⚠️ **not run** (no Realtime in test stack); polling fallback ✅ |
+| History: open / re-generate / delete, status ready | E2E | ✅ |
+| Viewer loads GLB (basic) | E2E: `model-viewer.loaded === true` for a pipeline-exported GLB | ✅ |
+| Buy link = original URL, `noopener noreferrer`; none for uploads | E2E | ✅ |
+| `HARDWARE.md` measured TripoSR numbers | — | ❌ **pending first real run** |
+
+## Deployment fixes verified
+- A missing profile no longer shows "suspended": self-heal on login + backfill migration (DB test).
+- The rate limiter being unreachable now gives "server problem" (503), not "too many attempts".
+- Studio re-checks AI status every 15 s and has a "Check again" button.
+- Python requirements are pinned to the set that installed cleanly on Windows (mediapipe 0.10.21 / numpy 1.26 / opencv-contrib 4.11 / scipy <1.18).
+
+## Not run here (run on your machine)
+```bash
+cd ai-service && pip install -r requirements.txt -r requirements-models.txt -r requirements-reconstruction.txt
+python -I scripts/download_models.py --only reconstruction       # TripoSR weights (~1.7 GB)
+AILOKAL_ALLOW_CPU_RECONSTRUCTION=true uvicorn ai_service.app:app  # then generate one model from the Studio
+```
+Afterwards, record time and memory in `docs/HARDWARE.md`.

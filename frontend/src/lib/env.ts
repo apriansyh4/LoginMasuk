@@ -25,6 +25,8 @@ const serverSchema = z.object({
   RATE_LIMIT_VALIDATE_PER_DAY: z.coerce.number().int().min(1).default(60),
   RATE_LIMIT_LOGIN_PER_15MIN: z.coerce.number().int().min(1).default(10),
   RATE_LIMIT_REGISTER_PER_HOUR: z.coerce.number().int().min(1).default(5),
+  GENERATION_DAILY_LIMIT: z.coerce.number().int().min(1).max(1000).default(5),
+  GENERATION_QUEUE_CAP: z.coerce.number().int().min(1).max(1000).default(10),
   MARKETPLACE_USER_AGENT: z.string().default('AR-LOKAL-Preview/0.1 (+product preview; respects robots.txt)'),
 });
 

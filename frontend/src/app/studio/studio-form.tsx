@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import type { Dictionary } from '@/lib/i18n/dictionaries';
 
 type Mode = 'url' | 'upload';
@@ -39,16 +39,41 @@ export function StudioForm({ t }: { t: Pick<Dictionary, 'studio' | 'urlErrors' |
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const [checking, setChecking] = useState(false);
+  const loadHealth = useCallback(async () => {
+    let next: Health;
+    try {
+      const r = await fetch('/api/health', { cache: 'no-store' });
+      next = r.ok ? ((await r.json()) as Health) : { reachable: false, validationAvailable: false };
+    } catch {
+      next = { reachable: false, validationAvailable: false };
+    }
+    setHealth(next);
+  }, []);
+  const recheck = useCallback(async () => {
+    setChecking(true);
+    await loadHealth();
+    setChecking(false);
+  }, [loadHealth]);
+
   useEffect(() => {
     let alive = true;
-    fetch('/api/health', { cache: 'no-store' })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((h: Health) => alive && setHealth(h ?? { reachable: false, validationAvailable: false }))
-      .catch(() => alive && setHealth({ reachable: false, validationAvailable: false }));
+    const run = () => {
+      if (alive) void loadHealth();
+    };
+    const first = setTimeout(run, 0);
     return () => {
       alive = false;
+      clearTimeout(first);
     };
-  }, []);
+  }, [loadHealth]);
+
+  // While the AI service is down, re-check periodically so the page recovers by itself.
+  useEffect(() => {
+    if (!health || health.validationAvailable) return;
+    const t = setInterval(() => void loadHealth(), 15_000);
+    return () => clearInterval(t);
+  }, [health, loadHealth]);
 
   const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
   useEffect(() => () => void (preview && URL.revokeObjectURL(preview)), [preview]);
@@ -115,7 +140,7 @@ export function StudioForm({ t }: { t: Pick<Dictionary, 'studio' | 'urlErrors' |
         router.push(`/studio/${body.productId}`);
         return;
       }
-      if (r.status === 503) setError(S.serviceDown);
+      if (r.status === 503) setError(body.error === 'SERVICE_UNAVAILABLE' ? S.serverProblem : S.serviceDown);
       else if (r.status === 429) setError(S.rateLimited);
       else if (r.status === 413) setError(S.requirements[0]!);
       else setError(body.error && body.error in t.urlErrors ? urlError(body.error) : S.genericError);
@@ -128,9 +153,12 @@ export function StudioForm({ t }: { t: Pick<Dictionary, 'studio' | 'urlErrors' |
   return (
     <form onSubmit={submit} className="space-y-8" aria-busy={submitting}>
       {serviceDown && (
-        <p role="alert" className="rounded-xl bg-warn-soft p-4 text-sm">
-          {S.serviceDown}
-        </p>
+        <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-warn-soft p-4 text-sm">
+          <p>{S.serviceDown}</p>
+          <button type="button" className="btn-secondary min-h-9 px-4" onClick={() => void recheck()} disabled={checking}>
+            {checking ? t.common.loading : S.recheck}
+          </button>
+        </div>
       )}
 
       <div role="radiogroup" aria-label="Input" className="inline-flex rounded-full border border-sand bg-white p-1">

@@ -111,7 +111,7 @@ test.describe('validation flow + history (real models)', () => {
     const okId = await uploadFixture(page, 'accept_teapot_ceramic.png');
     await expect(page.getByText(/lolos validasi|passed validation/)).toBeVisible();
     // generation is honestly disabled until M2 / GPU
-    await expect(page.getByRole('button', { name: /pembuatan 3D|3D generation/ })).toBeDisabled();
+    await expect(page.getByRole('button', { name: /Buat model 3D|Create 3D model/ })).toBeDisabled();
 
     const badId = await uploadFixture(page, 'reject_two_products.png');
     await expect(page.getByText(/belum memenuhi syarat|does not meet/)).toBeVisible();

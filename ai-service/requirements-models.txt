@@ -1,6 +1,7 @@
 # Additional validation detectors (required by the default config).
-# body_parts: MediaPipe Tasks (Apache-2.0)
+# body_parts: MediaPipe Tasks (Apache-2.0). Pinned: newer releases conflict on protobuf/numpy.
 mediapipe==0.10.21
 # category: OpenCLIP zero-shot (MIT) on PyTorch (BSD-3)
 torch>=2.3
+torchvision
 open_clip_torch>=2.26

@@ -5,7 +5,8 @@ Rule (brief §3): record every model or library before adding it. MIT/Apache-2.0
 ## AI models
 | Component | Use | License | Source |
 |---|---|---|---|
-| TripoSR (VAST-AI-Research & Stability AI) | image→3D (M2) | MIT (code and weights) | https://github.com/VAST-AI-Research/TripoSR · https://huggingface.co/stabilityai/TripoSR |
+| TripoSR (VAST-AI-Research & Stability AI) | image→3D | MIT (code and weights) | https://github.com/VAST-AI-Research/TripoSR · https://huggingface.co/stabilityai/TripoSR · code vendored at `107cefd` in `ai-service/third_party/triposr` (LICENSE kept, patches documented) |
+| DINO ViT-B/16 config (Meta) | TripoSR image-encoder architecture (config only; weights come from the TripoSR checkpoint) | Apache-2.0 | https://huggingface.co/facebook/dino-vitb16 |
 | ISNet general-use / DIS (Qin et al.) | foreground mask | Apache-2.0 | https://github.com/xuebinqin/DIS · ONNX weights from rembg releases (rembg: MIT) https://github.com/danielgatis/rembg · sha256 `60920e99…0d964a` |
 | YOLOX-s (Megvii) | person / animal / object detection (COCO classes) | Apache-2.0 | https://github.com/Megvii-BaseDetection/YOLOX · release 0.1.1rc0 `yolox_s.onnx` sha256 `c5c2d13e…998063` |
 | MediaPipe Tasks: hand landmarker, BlazeFace short-range, pose landmarker lite | body-part detection | Apache-2.0 | https://github.com/google-ai-edge/mediapipe · model files from storage.googleapis.com/mediapipe-models (hash recorded on first download) |
@@ -24,12 +25,23 @@ Note: YOLOX weights are trained on COCO (annotations CC BY 4.0). The model is us
 | sharp (libvips: LGPL-3.0, dynamically linked prebuilt binary) | Apache-2.0 |
 | undici | MIT |
 | ipaddr.js | MIT |
-| @google/model-viewer (M3) | Apache-2.0 |
+| @google/model-viewer | Apache-2.0 |
 | FastAPI, Starlette, Pydantic, Uvicorn | MIT / BSD-3 |
 | NumPy, Pillow, PyYAML | BSD-3 / MIT-CMU / MIT |
 | OpenCV (opencv-python-headless) | Apache-2.0 (wheels: MIT) |
 | onnxruntime | MIT |
 | PyTorch (with OpenCLIP / TripoSR) | BSD-3 |
+| transformers (Hugging Face) | Apache-2.0 |
+| huggingface_hub | Apache-2.0 |
+| omegaconf | BSD-3 |
+| einops | MIT |
+| scikit-image (marching cubes) | BSD-3 |
+| SciPy | BSD-3 |
+| trimesh | MIT |
+| fast-simplification | MIT |
+| xatlas-python | MIT |
+| ModernGL | MIT |
+| MediaPipe 0.10.21 | Apache-2.0 |
 | embedded-postgres (tests), PostgreSQL | MIT / PostgreSQL License |
 | Mailpit (test harness) | MIT |
 | Playwright, Vitest, ESLint, Prettier, Ruff, pytest | Apache-2.0 / MIT |

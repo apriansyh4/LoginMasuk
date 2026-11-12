@@ -67,3 +67,32 @@ Fraunces and Inter come from `@fontsource-variable` (OFL), so no Google Fonts re
 
 ## ADR-020 Supabase CLI v3 config
 CLI v3 removed `[inbucket]`; `config.toml` uses `[local_smtp]`. Types are generated with `supabase gen types typescript --remote=<db-url>` (works without Docker).
+
+## ADR-021 Vendored TripoSR with three small patches (M2)
+TripoSR is not a pip package. Its `tsr/` code (MIT, commit `107cefd`) lives in `ai-service/third_party/triposr`, with the patches listed in `AR-LOKAL-PATCHES.md`:
+1. `torchmcubes`, which needs a C++/CUDA build that fails on most Windows machines, is replaced by scikit-image marching cubes.
+2. `rembg` and `imageio` are imported lazily (unused).
+3. Texture baking had a device mismatch on CUDA; it's fixed.
+
+Weights are downloaded, never committed.
+
+## ADR-022 Job worker inside ai-service, state in Postgres
+A single in-process worker queue, with concurrency 1 per GPU by default. Job state lives only in `generation_jobs`, so Realtime and polling show the truth. On start, the worker fails any job left `queued` or `running` with `SERVICE_RESTARTED`, rather than leaving it hanging. Cancel and timeout are checked between steps; a single forward pass can't be interrupted safely, so it is documented rather than faked.
+
+## ADR-023 CPU inference is explicit opt-in
+With no CUDA GPU, `/health` reports `reconstructionAvailable: false, reason: no_gpu` unless `AILOKAL_ALLOW_CPU_RECONSTRUCTION=true`. In CPU mode the UI shows a "slow" warning, and the config uses lower settings: marching cubes 160 and vertex colours instead of 2048² texture baking.
+
+## ADR-024 Quotas
+The default is 5 generations per user per rolling 24 hours (`GENERATION_DAILY_LIMIT`) and a global cap of 10 queued or running jobs (`GENERATION_QUEUE_CAP`), with one active job per product enforced by a unique index. Jobs that fail because of the service (`SERVICE_RESTARTED`, `ENGINE_UNAVAILABLE`, `QUEUE_FULL`) don't count against quota.
+
+## ADR-025 Category-based size defaults
+Without a seller size, the model's largest dimension is set from `default_size_m` per detected category (e.g. jewelry 6 cm, bag 35 cm) and labelled "Approximate size — not verified". With a seller size, the matching axis is scaled exactly (`sizeSource: user`).
+
+## ADR-026 Basic viewer in M2
+`/model/[productId]` already uses `<model-viewer>` with loading and error states, so a finished job has something to look at. Reset camera, AR, USDZ and sharing remain M3.
+
+## ADR-027 Pinned Python stack for Windows
+MediaPipe 0.10.21 needs `numpy<2` and installs `opencv-contrib-python`. The core requirements therefore use that same OpenCV package (two cv2 builds would collide), and scipy is pinned `<1.18` (1.18 needs numpy 2). These conflicts were found on a real Windows install.
+
+## ADR-028 Honest rate-limiter errors
+If the Postgres limiter can't be reached, requests are still refused (fail closed), but users now see "server problem" (HTTP 503 `SERVICE_UNAVAILABLE`) instead of "too many attempts", and the cause is logged. A missing `profiles` row is created on first login (role `user`) instead of being shown as "suspended"; migration 0004 backfills old accounts.

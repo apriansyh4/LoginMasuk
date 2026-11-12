@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { buildCsp, SECURITY_HEADERS } from '@/lib/security-headers';
 
-const PROTECTED = ['/studio', '/history', '/account', '/admin', '/experience'];
+const PROTECTED = ['/studio', '/history', '/account', '/admin', '/experience', '/generate', '/model'];
 
 /**
  * Runs before every matched request:

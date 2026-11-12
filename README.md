@@ -4,14 +4,15 @@ Turn **one isolated product photo** (uploaded, or picked from a Shopee / Tokoped
 
 > Models are **AI-generated approximations**: one photo cannot reveal the back of a product. Real-world size is unverified unless the seller enters it. AR-LOKAL is not affiliated with Shopee or Tokopedia.
 
-**Status: Milestone 1 of 4** (foundation, auth, input, validation). See [docs/TEST_REPORT.md](docs/TEST_REPORT.md) for what is verified and what is not.
+**Status: Milestone 2 of 4** (foundation, auth, input, validation, 3D generation). See [docs/TEST_REPORT.md](docs/TEST_REPORT.md) for what is verified and what is not.
 
 | Works now | Coming |
 |---|---|
-| Register → email verification → login / logout / reset; roles (user, admin via SQL only) | M2: TripoSR 3D generation, realtime progress, quotas |
+| Register → email verification → login / logout / reset; roles (user, admin via SQL only) | |
+| 3D generation with TripoSR (GPU, or CPU opt-in), live progress (Realtime + polling), cancel/retry, quotas, basic 3D viewer, GLB download | |
 | Studio: upload or marketplace URL (SSRF-safe, robots-respecting), rights checkbox, optional size | M3: 3D viewer, AR (WebXR / Scene Viewer / Quick Look), USDZ, share links |
 | Image Validation Engine (quality, people/animals, segmentation + counting, cropping/occlusion, category), fail-closed | M4: admin moderation, export/delete account, retention job, polish, demo |
-| History with rejected attempts and reasons, filters, pagination, delete (rows + files) | |
+| History with rejected attempts and reasons, filters, pagination, open / re-generate / delete (rows + files) | |
 
 ## Repository
 ```
@@ -37,15 +38,19 @@ supabase status                           # copy anon + service_role keys into .
 # 2. ai-service
 cd ai-service
 python -m venv .venv && . .venv/bin/activate
-pip install -r requirements-dev.txt -r requirements-models.txt
-python -I scripts/download_models.py      # ISNet, YOLOX, MediaPipe (OpenCLIP downloads on first use)
-AILOKAL_SERVICE_SECRET=... uvicorn ai_service.app:app --port 8000
+pip install -r requirements-dev.txt -r requirements-models.txt   # dev includes requirements-reconstruction.txt
+python -I scripts/download_models.py      # ISNet, YOLOX, MediaPipe, TripoSR (OpenCLIP downloads on first use)
+# required: AILOKAL_SERVICE_SECRET, AILOKAL_SUPABASE_URL, AILOKAL_SUPABASE_SERVICE_KEY
+# no NVIDIA GPU? AILOKAL_ALLOW_CPU_RECONSTRUCTION=true (slow)
+uvicorn ai_service.app:app --port 8000
 
 # 3. frontend
 cd ../frontend
 cp ../.env .env.local
 npm ci && npm run dev                     # http://localhost:3000
 ```
+
+On Windows, `scripts\start-ai.cmd` starts the ai-service and a Cloudflare quick tunnel from `ai-service\ai.env`.
 
 Or run both apps in containers after `supabase start`: `docker compose up --build`. GPU passthrough is described in [docs/HARDWARE.md](docs/HARDWARE.md).
 

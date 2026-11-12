@@ -22,3 +22,7 @@ frontend/test-results/
 frontend/playwright-report/
 supabase/.temp/
 supabase/.branches/
+
+# local tunnel binary (Windows)
+cloudflared*.exe
+ai-service/ai.env

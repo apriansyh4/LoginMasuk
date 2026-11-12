@@ -12,6 +12,11 @@ class Settings(BaseSettings):
     models_dir: str = "models"
     preload_models: bool = False
     log_level: str = "INFO"
+    # Job runner writes job progress + the GLB to Supabase with a server-only credential.
+    supabase_url: str = ""
+    supabase_service_key: str = ""
+    # Explicit opt-in for slow CPU inference when no CUDA GPU exists (default off).
+    allow_cpu_reconstruction: bool = False
 
 
 @lru_cache

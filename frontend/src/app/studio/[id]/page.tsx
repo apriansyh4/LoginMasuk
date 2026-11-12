@@ -6,6 +6,8 @@ import { getDict } from '@/lib/i18n/server';
 import { createClient } from '@/lib/supabase/server';
 import { getAiHealth } from '@/server/ai-service';
 import { requirePageUser } from '@/server/auth';
+import { quotaFor } from '@/server/generation';
+import { GenerateButton } from '@/components/generate-button';
 
 export const metadata = { title: 'Validation result' };
 
@@ -13,7 +15,7 @@ const SUB_KEYS = ['sharpness', 'exposure', 'contrast', 'backgroundSimplicity', '
 
 export default async function ValidationResultPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  await requirePageUser(`/studio/${id}`);
+  const user = await requirePageUser(`/studio/${id}`);
   if (!z.uuid().safeParse(id).success) notFound();
   const { t } = await getDict();
   const supabase = await createClient();
@@ -35,7 +37,23 @@ export default async function ValidationResultPage({ params }: { params: Promise
     ? (await supabase.storage.from('uploads').createSignedUrl(product.original_image_key, 600)).data?.signedUrl
     : null;
   const health = v?.is_valid ? await getAiHealth() : null;
-  const generationAvailable = Boolean(health?.reconstructionAvailable && health.gpuAvailable);
+  const generationAvailable = Boolean(health?.reconstructionAvailable);
+  const { data: lastJob } = await supabase
+    .from('generation_jobs')
+    .select('id, status')
+    .eq('product_id', id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const { data: readyModel } = await supabase
+    .from('generated_models')
+    .select('id')
+    .eq('product_id', id)
+    .eq('status', 'ready')
+    .limit(1)
+    .maybeSingle();
+  const activeJobId = lastJob && ['queued', 'running'].includes(lastJob.status) ? lastJob.id : null;
+  const quota = v?.is_valid ? await quotaFor(user.id) : { remaining: 0, limit: 0 };
   const reasons = parseReasons(v?.rejection_reasons);
   const sub = (v?.sub_scores ?? {}) as Partial<Record<(typeof SUB_KEYS)[number], number>>;
   const R = t.result;
@@ -94,14 +112,20 @@ export default async function ValidationResultPage({ params }: { params: Promise
           <div className="flex flex-wrap gap-3">
             {v?.is_valid ? (
               <>
-                <button type="button" className="btn-primary" disabled={!generationAvailable} aria-describedby="gen-note">
-                  {R.continue}
-                </button>
-                {!generationAvailable && (
-                  <p id="gen-note" className="w-full text-sm text-ink-soft">
-                    {R.generationUnavailable}
-                  </p>
+                {readyModel && (
+                  <Link href={`/model/${id}`} className="btn-primary">
+                    {t.gen.openModel}
+                  </Link>
                 )}
+                <GenerateButton
+                  productId={id}
+                  available={generationAvailable}
+                  cpuMode={Boolean(health?.cpuMode)}
+                  quota={quota}
+                  activeJobId={activeJobId}
+                  label={readyModel ? t.gen.regenerate : t.gen.start}
+                  t={{ gen: t.gen, common: t.common }}
+                />
               </>
             ) : (
               <Link href="/studio" className="btn-primary">

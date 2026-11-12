@@ -29,7 +29,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
   let req = supabase
     .from('submission_history')
     .select(
-      'id, name, marketplace, original_product_url, original_image_key, status, quality_score, quality_status, rejection_reasons, created_at',
+      'id, name, marketplace, original_product_url, original_image_key, status, quality_score, quality_status, rejection_reasons, created_at, job_id',
       {
         count: 'exact',
       },
@@ -151,6 +151,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
                       · {t.result.score}: {r.quality_score}
                     </>
                   )}
+                  {r.quality_status && <> · {t.model.quality[r.quality_status as 'good' | 'fair' | 'poor']}</>}
                 </p>
                 {r.original_product_url && (
                   <a
@@ -168,9 +169,19 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
                   </p>
                 )}
                 <div className="mt-auto flex gap-2 pt-3">
-                  <Link href={`/studio/${r.id}`} className="btn-secondary min-h-9 px-4">
+                  <Link href={status === 'ready' ? `/model/${r.id}` : `/studio/${r.id}`} className="btn-secondary min-h-9 px-4">
                     {H.open}
                   </Link>
+                  {r.job_id && status === 'generating' && (
+                    <Link href={`/generate/${r.job_id}`} className="btn-ghost min-h-9 px-4">
+                      {t.gen.status.running}
+                    </Link>
+                  )}
+                  {(status === 'validated' || status === 'failed' || status === 'ready') && (
+                    <Link href={`/studio/${r.id}`} className="btn-ghost min-h-9 px-4">
+                      {status === 'validated' ? t.gen.start : t.gen.regenerate}
+                    </Link>
+                  )}
                   <DeleteButton id={r.id!} label={H.delete} confirmText={H.confirmDelete} />
                 </div>
               </div>

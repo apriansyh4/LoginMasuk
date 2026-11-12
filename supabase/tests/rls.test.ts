@@ -411,3 +411,44 @@ describe('cascade delete', () => {
     expect(Number(r.rows[0].n)).toBe(0);
   });
 });
+
+describe('milestone 2: generation', () => {
+  it('allows only one queued/running job per product', async () => {
+    const p = await createProduct(userB);
+    const v = await createValidation(userB, p, true);
+    await createJob(userB, p, v);
+    await expect(createJob(userB, p, v)).rejects.toThrow(/generation_jobs_one_active_per_product/);
+    // a finished job frees the slot (re-generate)
+    await asService(pool, (c) => c.query(`update public.generation_jobs set status = 'failed' where product_id = $1`, [p]));
+    await expect(createJob(userB, p, v)).resolves.toMatch(/[0-9a-f-]{36}/);
+  });
+
+  it('backfill creates missing profiles for accounts made before the trigger existed', async () => {
+    const id = randomUUID();
+    const c = await pool.connect();
+    try {
+      await c.query('alter table auth.users disable trigger on_auth_user_created');
+      await c.query(
+        `insert into auth.users (id, aud, role, email, raw_user_meta_data, email_confirmed_at, created_at, updated_at)
+         values ($1, 'authenticated', 'authenticated', $2, '{"display_name":"Lama","role":"admin"}', now(), now(), now())`,
+        [id, `${id}@old.local`],
+      );
+      await c.query('alter table auth.users enable trigger on_auth_user_created');
+      const before = await c.query('select 1 from public.profiles where id = $1', [id]);
+      expect(before.rowCount).toBe(0);
+      const { readFileSync } = await import('node:fs');
+      const { join } = await import('node:path');
+      await c.query(readFileSync(join(__dirname, '..', 'migrations', '20261112000004_generation.sql'), 'utf8'));
+      const after = await c.query('select role, is_active, display_name from public.profiles where id = $1', [id]);
+      expect(after.rows[0]).toEqual({ role: 'user', is_active: true, display_name: 'Lama' });
+    } finally {
+      c.release();
+    }
+  });
+
+  it('users cannot cancel or alter jobs directly (server-only writes)', async () => {
+    await expect(
+      as(pool, 'authenticated', userA, (c) => c.query(`update public.generation_jobs set status = 'cancelled' where id = $1`, [jobA])),
+    ).rejects.toThrow(/permission denied/);
+  });
+});

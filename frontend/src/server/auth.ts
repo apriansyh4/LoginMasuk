@@ -1,6 +1,6 @@
 import 'server-only';
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 
 export interface SessionUser {
   id: string;
@@ -29,11 +29,29 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) return null;
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from('profiles')
     .select('role, is_active, display_name')
     .eq('id', data.user.id)
     .maybeSingle();
+  if (!profile) {
+    // Account created before the signup trigger existed (or the trigger failed):
+    // create the missing row with the least privilege instead of treating the
+    // person as suspended. Role is always 'user'; nothing comes from metadata.
+    const db = createServiceClient();
+    const name = typeof data.user.user_metadata?.display_name === 'string' ? data.user.user_metadata.display_name : null;
+    await db
+      .from('profiles')
+      .upsert(
+        { id: data.user.id, role: 'user', is_active: true, display_name: name?.trim().slice(0, 80) || null },
+        { onConflict: 'id', ignoreDuplicates: true },
+      );
+    ({ data: profile } = await supabase
+      .from('profiles')
+      .select('role, is_active, display_name')
+      .eq('id', data.user.id)
+      .maybeSingle());
+  }
   return {
     id: data.user.id,
     email: data.user.email ?? null,

@@ -4,8 +4,11 @@ uvicorn[standard]>=0.30
 pydantic>=2.7
 pydantic-settings>=2.3
 python-multipart>=0.0.9
+httpx>=0.27
 pillow>=10.4
-numpy>=1.26
-opencv-python-headless>=4.10
+# mediapipe 0.10.x needs numpy 1.x and installs opencv-contrib-python; use the
+# same OpenCV package here so two cv2 builds never collide.
+numpy>=1.26,<2
+opencv-contrib-python>=4.10,<4.12
 onnxruntime>=1.18
 pyyaml>=6.0

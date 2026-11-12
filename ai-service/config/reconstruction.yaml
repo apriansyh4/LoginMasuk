@@ -1,0 +1,74 @@
+# AR-LOKAL 3D reconstruction (TripoSR) configuration.
+# Override any key with AILOKAL_RECONSTRUCTION__<SECTION>__<KEY>=<yaml scalar>
+#   e.g. AILOKAL_RECONSTRUCTION__RUNTIME__ALLOW_CPU=true
+version: "2026.11-m2"
+
+model:
+  repo_id: stabilityai/TripoSR          # MIT
+  local_dir: triposr                    # under AILOKAL_MODELS_DIR
+  config_name: config.yaml
+  weight_name: model.ckpt
+  vendored_commit: 107cefdc244c39106fa830359024f6a2f1c78871
+
+runtime:
+  # CUDA is used when available. CPU inference is OFF unless explicitly enabled:
+  # it is slow (minutes) and the UI shows a "slow" warning.
+  allow_cpu: false
+  concurrency: 1                        # jobs at the same time per GPU/CPU
+  max_queue: 10                         # global queue cap (protects the machine)
+
+gpu:
+  mc_resolution: 256
+  chunk_size: 8192
+  texture: bake                         # bake | vertex_color
+  texture_resolution: 2048
+  timeout_seconds: 180
+  oom_retry_mc_resolution: 192          # one retry at lower resolution on CUDA OOM
+
+cpu:
+  mc_resolution: 160
+  chunk_size: 8192
+  texture: vertex_color                 # baking 1-4 M texels on CPU is very slow
+  texture_resolution: 1024
+  timeout_seconds: 1800
+  oom_retry_mc_resolution: 128
+
+preprocess:
+  foreground_ratio: 0.85
+  background_gray: 0.5
+  mask_dilate_px: 2
+
+surface:
+  density_threshold: 25.0
+
+mesh:
+  min_faces: 500
+  max_faces: 120000                     # decimate above this
+  keep_fragment_min_face_fraction: 0.02 # drop floating bits smaller than 2% of the largest part
+  max_glb_bytes: 41943040               # 40 MB (models bucket limit)
+
+# Approximate real-world size (largest dimension, metres) used when the seller
+# gives no size. Shown as "Approximate size - not verified".
+default_size_m:
+  bag: 0.35
+  shoes: 0.28
+  fashion_accessory: 0.25
+  jewelry: 0.06
+  garment: 0.7
+  ceramic: 0.2
+  vase: 0.3
+  woven_wood_craft: 0.35
+  home_decor: 0.3
+  sculpture: 0.3
+  ornament: 0.15
+  _fallback: 0.3
+
+quality:
+  # Categories that single-image reconstruction handles badly (glossy, thin, transparent).
+  risky_categories: [jewelry, vase, ceramic]
+  poor_if_input_score_below: 55
+  fair_if_input_score_below: 72
+  poor_if_degenerate_ratio_above: 0.05
+  fair_if_degenerate_ratio_above: 0.01
+  poor_if_main_part_face_share_below: 0.8
+  fair_if_fragments_removed_share_above: 0.05

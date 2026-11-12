@@ -2,6 +2,7 @@
 
   python -I scripts/download_models.py            # all
   python -I scripts/download_models.py --only segmentation objects
+  python -I scripts/download_models.py --only reconstruction   # TripoSR (~1.7 GB, Hugging Face)
 
 SHA-256 is pinned where it was verified when the file was added. For files
 whose host was unreachable in the build environment (sha256=None) the hash is
@@ -63,13 +64,36 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
+def download_triposr() -> bool:
+    """TripoSR config + weights (MIT) from Hugging Face, plus the DINO ViT config
+    the model builds its image encoder from (cached for offline use)."""
+    try:
+        from huggingface_hub import hf_hub_download
+    except ImportError:
+        print("huggingface_hub missing: pip install -r requirements-reconstruction.txt", file=sys.stderr)
+        return False
+    dest = MODELS / "triposr"
+    dest.mkdir(parents=True, exist_ok=True)
+    for name in ("config.yaml", "model.ckpt"):
+        print(f"downloading stabilityai/TripoSR {name} ...")
+        hf_hub_download(repo_id="stabilityai/TripoSR", filename=name, local_dir=str(dest))
+        print(f"ok triposr/{name} sha256={sha256(dest / name)}")
+    hf_hub_download(repo_id="facebook/dino-vitb16", filename="config.json")
+    print("ok facebook/dino-vitb16 config.json (Hugging Face cache)")
+    return True
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--only", nargs="*", choices=sorted(FILES))
+    ap.add_argument("--only", nargs="*", choices=sorted([*FILES, "reconstruction"]))
     args = ap.parse_args()
     MODELS.mkdir(exist_ok=True)
     failed = False
-    for group in args.only or FILES:
+    groups = args.only or [*FILES, "reconstruction"]
+    if "reconstruction" in groups:
+        failed = not download_triposr()
+        groups = [g for g in groups if g != "reconstruction"]
+    for group in groups:
         for name, url, expected in FILES[group]:
             dest = MODELS / name
             if not dest.exists():

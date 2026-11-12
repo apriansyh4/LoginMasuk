@@ -2,7 +2,7 @@ import 'server-only';
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import { AuthError } from '@/server/auth';
-import { RateLimited } from '@/server/rate-limit';
+import { RateLimited, RateLimiterUnavailable } from '@/server/rate-limit';
 
 export function jsonError(status: number, error: string, extra: Record<string, unknown> = {}) {
   return NextResponse.json({ error, ...extra }, { status, headers: { 'cache-control': 'no-store' } });
@@ -28,6 +28,7 @@ export function route<A extends unknown[]>(fn: (...args: A) => Promise<Response>
     } catch (e) {
       if (e instanceof AuthError) return jsonError(e.status, e.code);
       if (e instanceof RateLimited) return jsonError(429, 'RATE_LIMITED', { bucket: e.bucket });
+      if (e instanceof RateLimiterUnavailable) return jsonError(503, 'SERVICE_UNAVAILABLE');
       if (e instanceof ZodError) return jsonError(400, 'INVALID_INPUT', { issues: e.issues.map((i) => i.path.join('.')) });
       console.error(JSON.stringify({ level: 'error', msg: 'route_error', name: e instanceof Error ? e.name : 'unknown' }));
       return jsonError(500, 'INTERNAL_ERROR');

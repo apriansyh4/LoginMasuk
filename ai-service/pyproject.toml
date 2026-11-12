@@ -9,13 +9,16 @@ license = { text = "MIT" }
 testpaths = ["tests"]
 markers = [
   "models: needs downloaded model weights (ISNet, YOLOX; MediaPipe/OpenCLIP when installed)",
-  "gpu: needs a CUDA GPU (TripoSR, Milestone 2)",
+  "gpu: needs a CUDA GPU and real TripoSR weights",
+  "torch: needs PyTorch (runs the real TripoSR code with a tiny random model)",
+  "stack: needs a running Supabase stack (AILOKAL_TEST_SUPABASE_URL/KEY)",
 ]
 filterwarnings = ["ignore::DeprecationWarning"]
 
 [tool.ruff]
 line-length = 130
 target-version = "py310"
+extend-exclude = ["third_party"]  # vendored upstream code, kept as-is (see AR-LOKAL-PATCHES.md)
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N", "S", "BLE"]

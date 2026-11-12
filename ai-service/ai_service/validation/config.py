@@ -43,11 +43,11 @@ class ValidationConfig:
         return list(self.raw.get("required_detectors", []))
 
 
-def _apply_overrides(data: dict[str, Any], env: Mapping[str, str]) -> None:
+def _apply_overrides(data: dict[str, Any], env: Mapping[str, str], prefix: str = ENV_PREFIX) -> None:
     for name, value in env.items():
-        if not name.startswith(ENV_PREFIX):
+        if not name.startswith(prefix):
             continue
-        path = [p.lower() for p in name[len(ENV_PREFIX) :].split("__") if p]
+        path = [p.lower() for p in name[len(prefix) :].split("__") if p]
         if not path:
             continue
         node: Any = data
@@ -70,20 +70,22 @@ def load_config(
     path: Path | str | None = None,
     env: Mapping[str, str] | None = None,
     overrides: Mapping[str, Any] | None = None,
+    *,
+    env_prefix: str = ENV_PREFIX,
 ) -> ValidationConfig:
-    """Load config. `overrides` is a nested dict merged last (used by tests/tuning)."""
+    """Load a YAML config. `overrides` is a nested dict merged last (used by tests/tuning)."""
     cfg_path = Path(path or os.environ.get("AILOKAL_VALIDATION_CONFIG") or DEFAULT_PATH)
     with cfg_path.open("r", encoding="utf-8") as fh:
         data = yaml.safe_load(fh)
     if not isinstance(data, dict):
         raise ConfigError("validation config must be a mapping")
     data = copy.deepcopy(data)
-    _apply_overrides(data, os.environ if env is None else env)
+    _apply_overrides(data, os.environ if env is None else env, env_prefix)
     if overrides:
         _deep_merge(data, overrides)
     weights = data.get("score", {}).get("weights", {})
     total = sum(float(v) for v in weights.values())
-    if abs(total - 1.0) > 1e-6:
+    if weights and abs(total - 1.0) > 1e-6:
         raise ConfigError(f"score weights must sum to 1.0 (got {total})")
     digest = hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()[:10]
     return ValidationConfig(raw=data, version=f"{data.get('version', 'unversioned')}+{digest}")
