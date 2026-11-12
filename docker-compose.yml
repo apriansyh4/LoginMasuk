@@ -1,0 +1,38 @@
+# Local development: run `supabase start` first (Auth, Postgres, Storage, Realtime),
+# then `docker compose up --build`. See README.md.
+services:
+  ai-service:
+    build: ./ai-service
+    env_file: .env
+    environment:
+      AILOKAL_MODELS_DIR: /app/models
+    volumes:
+      - ./ai-service/models:/app/models
+    # internal only: no public port mapping; the frontend reaches it on the compose network.
+    expose: ["8000"]
+    # GPU passthrough (TripoSR, Milestone 2). Requires NVIDIA Container Toolkit;
+    # see docs/HARDWARE.md. Remove this block on machines without a GPU.
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+    env_file: .env
+    environment:
+      AI_SERVICE_URL: http://ai-service:8000
+    ports: ["3000:3000"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # reach `supabase start` on the host
+    depends_on: [ai-service]
+    restart: unless-stopped

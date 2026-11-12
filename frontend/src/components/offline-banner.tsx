@@ -1,0 +1,25 @@
+'use client';
+import { useSyncExternalStore } from 'react';
+
+const subscribe = (cb: () => void) => {
+  window.addEventListener('online', cb);
+  window.addEventListener('offline', cb);
+  return () => {
+    window.removeEventListener('online', cb);
+    window.removeEventListener('offline', cb);
+  };
+};
+
+export function OfflineBanner({ message }: { message: string }) {
+  const online = useSyncExternalStore(
+    subscribe,
+    () => navigator.onLine,
+    () => true,
+  );
+  if (online) return null;
+  return (
+    <div role="status" className="bg-warn-soft px-5 py-2 text-center text-sm text-ink">
+      {message}
+    </div>
+  );
+}

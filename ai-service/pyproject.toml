@@ -1,0 +1,26 @@
+[project]
+name = "ar-lokal-ai-service"
+version = "0.1.0"
+description = "AR-LOKAL internal AI service: image validation + TripoSR reconstruction"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "models: needs downloaded model weights (ISNet, YOLOX; MediaPipe/OpenCLIP when installed)",
+  "gpu: needs a CUDA GPU (TripoSR, Milestone 2)",
+]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "S", "BLE"]
+ignore = ["S101", "S311", "B008", "E501"]  # long user-facing strings; formatter owns wrapping
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S", "N802"]
+"scripts/*" = ["S"]

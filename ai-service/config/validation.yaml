@@ -1,0 +1,124 @@
+# AR-LOKAL Image Validation Engine configuration.
+# Every threshold and weight used by the engine lives here (no hardcoded
+# thresholds in code). Any key can be overridden by an environment variable:
+#   AILOKAL_VALIDATION__<SECTION>__<KEY>=<yaml scalar>
+#   e.g. AILOKAL_VALIDATION__QUALITY__SHARPNESS_REJECT=40
+# How each default was chosen is documented in docs/VALIDATION_TUNING.md.
+
+version: "2026.11-m1"
+
+# Detectors that MUST be loaded for /validate to answer. If one is missing the
+# engine fails closed (HTTP 503, VALIDATION_UNAVAILABLE) instead of passing an
+# image it could not fully check.
+required_detectors: [segmentation, objects, body_parts, category]
+
+file:
+  max_bytes: 10485760            # 10 MB
+  allowed_formats: [JPEG, PNG, WEBP]
+  max_pixels: 40000000           # decompression-bomb guard
+  min_short_side: 512            # hard minimum
+  recommended_short_side: 1024   # below this -> sub-score penalty + tip
+  analysis_long_side: 1024       # images are analysed at this size
+
+quality:
+  # Laplacian variance measured on the product region resized so its long
+  # side = sharpness_region_long_side (resolution-normalised).
+  sharpness_region_long_side: 512
+  sharpness_reject: 35.0         # below -> TOO_BLURRY
+  sharpness_good: 400.0          # at/above -> sub-score 100 (log scale between)
+  # Exposure, measured on the product region (luminance 0..255).
+  exposure_dark_reject: 35.0     # mean below -> BAD_EXPOSURE
+  exposure_bright_reject: 235.0  # mean above -> BAD_EXPOSURE
+  exposure_ideal_low: 70.0
+  exposure_ideal_high: 190.0
+  clipped_fraction_reject: 0.45  # share of pixels <=5 or >=250
+  # Contrast: RMS (std) of product-region luminance.
+  contrast_low: 12.0             # sub-score 0
+  contrast_good: 45.0            # sub-score 100
+  # Background: edge density + colour spread outside the product mask.
+  background_edge_density_bad: 0.12
+  background_color_std_bad: 55.0
+  # Cheap product-region estimate used before segmentation (colour distance
+  # from the median border colour).
+  prefilter_border_distance: 28.0
+
+segmentation:
+  model_file: isnet-general-use.onnx
+  input_size: 1024
+  mask_threshold: 0.5
+  min_component_fraction: 0.004  # smaller blobs are noise
+  merge_gap_fraction: 0.02       # parts closer than 2% of the diagonal = same product
+  secondary_product_ratio: 0.30  # 2nd component >= 30% of the largest -> MULTIPLE_PRODUCTS
+  min_foreground_fraction: 0.02  # nothing salient -> LOW_CONFIDENCE
+  # Collage / panel detection (straight seams spanning the image).
+  collage_seam_coverage: 0.92
+  collage_min_seams: 1
+
+objects:
+  model_file: yolox_s.onnx
+  input_size: 640
+  score_threshold: 0.45
+  nms_iou: 0.45
+  person_score_threshold: 0.40
+  animal_score_threshold: 0.45
+  # COCO classes. person -> HUMAN_DETECTED, animals -> ANIMAL_DETECTED.
+  person_classes: [person]
+  animal_classes: [bird, cat, dog, horse, sheep, cow, elephant, bear, zebra, giraffe]
+  # A second detected object outside the main product region whose box is at
+  # least this share of the image -> OTHER_FOREGROUND_OBJECTS.
+  other_object_min_area_fraction: 0.01
+  other_object_max_overlap_with_main: 0.30
+
+body_parts:
+  # MediaPipe Tasks (hands, faces, pose). Any confident detection rejects.
+  hand_score_threshold: 0.5
+  face_score_threshold: 0.6
+  pose_visibility_threshold: 0.6
+  pose_min_visible_landmarks: 4
+
+completeness:
+  border_margin_fraction: 0.01   # strip along each edge
+  border_touch_fraction: 0.04    # mask run along an edge > 4% of that edge -> PRODUCT_CROPPED
+  min_solidity: 0.30             # area / convex-hull area below -> PRODUCT_OCCLUDED
+  uncertain_band: [0.25, 0.75]   # saliency values treated as uncertain
+  max_uncertain_fraction: 0.35   # of the product bbox -> PRODUCT_OCCLUDED
+
+category:
+  model_name: ViT-B-32
+  pretrained: laion2b_s34b_b79k
+  min_confidence: 0.35           # below -> LOW_CONFIDENCE
+  # Supported categories (prompt ensembles). Keys are returned as detectedCategory.
+  supported:
+    bag: ["a product photo of a handbag", "a photo of a woven bag", "a photo of a leather purse"]
+    shoes: ["a product photo of shoes", "a photo of sandals", "a photo of a pair of sneakers"]
+    fashion_accessory: ["a product photo of a hat", "a photo of a scarf", "a photo of a belt", "a photo of a wallet"]
+    jewelry: ["a product photo of jewelry", "a photo of a necklace", "a photo of a ring", "a photo of earrings", "a photo of a bracelet"]
+    garment: ["a product photo of a shirt", "a photo of a batik garment", "a photo of a dress laid flat"]
+    ceramic: ["a product photo of a ceramic pot", "a photo of a teapot", "a photo of a ceramic bowl", "a photo of pottery"]
+    vase: ["a product photo of a vase", "a photo of a flower vase"]
+    woven_wood_craft: ["a photo of a wooden handicraft", "a photo of a rattan basket", "a photo of a bamboo craft"]
+    home_decor: ["a photo of a home decoration", "a photo of a lamp", "a photo of a decorative candle holder"]
+    sculpture: ["a photo of a sculpture", "a photo of a statue", "a photo of a wood carving"]
+    ornament: ["a photo of an ornament", "a photo of a decorative figurine", "a photo of a wall hanging"]
+  # Unsupported classes compete in the same softmax; winning -> UNSUPPORTED_CATEGORY.
+  unsupported:
+    food: ["a photo of food", "a photo of a burger", "a photo of a meal"]
+    vehicle: ["a photo of a car", "a photo of a motorcycle", "a photo of a rocket"]
+    electronics: ["a photo of a phone", "a photo of a laptop", "a photo of headphones"]
+    furniture: ["a photo of a chair", "a photo of a sofa", "a photo of a table"]
+    person: ["a photo of a person", "a portrait of a woman", "a photo of a man"]
+    animal: ["a photo of an animal", "a photo of a cat", "a photo of a bird"]
+    document: ["a screenshot", "a photo of a document", "a photo of text"]
+    scene: ["a photo of a room", "a photo of a landscape", "a photo of a street"]
+  # Two similar instances are a normal listing for these (a pair of shoes,
+  # a pair of earrings) and do not trigger MULTIPLE_PRODUCTS.
+  pair_categories: [shoes, jewelry]
+  pair_max_area_ratio: 1.8
+
+score:
+  weights:
+    sharpness: 0.30
+    exposure: 0.20
+    contrast: 0.15
+    backgroundSimplicity: 0.15
+    completeness: 0.20

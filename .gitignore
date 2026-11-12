@@ -1,0 +1,24 @@
+# deps / builds
+node_modules/
+.next/
+out/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+# model weights (downloaded by ai-service/scripts/download_models.py)
+ai-service/models/
+# env & secrets
+.env
+.env.*
+!.env.example
+# test output
+frontend/test-results/
+frontend/playwright-report/
+supabase/.temp/
+supabase/.branches/

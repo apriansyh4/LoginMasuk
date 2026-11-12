@@ -1,0 +1,11 @@
+# Core (validation: file/quality checks, ISNet segmentation, YOLOX detection)
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7
+pydantic-settings>=2.3
+python-multipart>=0.0.9
+pillow>=10.4
+numpy>=1.26
+opencv-python-headless>=4.10
+onnxruntime>=1.18
+pyyaml>=6.0
