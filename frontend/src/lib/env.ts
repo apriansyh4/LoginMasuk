@@ -27,6 +27,8 @@ const serverSchema = z.object({
   RATE_LIMIT_REGISTER_PER_HOUR: z.coerce.number().int().min(1).default(5),
   GENERATION_DAILY_LIMIT: z.coerce.number().int().min(1).max(1000).default(5),
   GENERATION_QUEUE_CAP: z.coerce.number().int().min(1).max(1000).default(10),
+  /** Shown to users when the AI service is off, e.g. "Senin–Jumat, 08.00–22.00 WIB". Optional. */
+  AI_SERVICE_HOURS: z.string().trim().max(120).optional(),
   MARKETPLACE_USER_AGENT: z.string().default('AR-LOKAL-Preview/0.1 (+product preview; respects robots.txt)'),
 });
 

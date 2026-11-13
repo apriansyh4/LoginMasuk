@@ -119,6 +119,8 @@ const id = {
     submit: 'Validasi gambar',
     validating: 'Memvalidasi gambar…',
     serviceDown: 'Layanan validasi AI sedang tidak tersedia. Tidak ada yang disimpan; silakan coba lagi nanti.',
+    serviceDownScheduled:
+      'Layanan AI sedang tidak aktif. Jadwal layanan AI: {hours}. Model 3D yang sudah jadi tetap bisa dilihat dan dicoba AR kapan saja lewat Riwayat. Tidak ada yang disimpan.',
     serverProblem: 'Server sedang bermasalah. Silakan coba lagi nanti.',
     recheck: 'Periksa lagi',
     rateLimited: 'Terlalu banyak percobaan. Silakan tunggu sebentar lalu coba lagi.',
@@ -201,6 +203,7 @@ const id = {
     quotaReached: 'Kuota pembuatan harian tercapai. Silakan coba lagi besok.',
     queueFull: 'Antrean sedang penuh. Silakan coba lagi beberapa menit lagi.',
     unavailable: 'Layanan pembuatan 3D tidak tersedia saat ini. Tidak ada kuota yang terpakai.',
+    unavailableScheduled: 'Pembuatan model 3D sedang tidak aktif. Jadwal layanan AI: {hours}. Tidak ada kuota yang terpakai.',
     alreadyActive: 'Model untuk produk ini sedang dibuat.',
     live: 'Pembaruan langsung',
     polling: 'Memeriksa status secara berkala',
