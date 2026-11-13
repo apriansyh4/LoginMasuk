@@ -80,7 +80,14 @@ export class AiServiceError extends Error {
 
 function base() {
   const env = serverEnv();
-  return { url: env.AI_SERVICE_URL.replace(/\/$/, ''), headers: { 'x-service-token': env.AI_SERVICE_SECRET } };
+  return {
+    url: env.AI_SERVICE_URL.replace(/\/$/, ''),
+    headers: {
+      'x-service-token': env.AI_SERVICE_SECRET,
+      // ngrok free domains show a browser warning page; server-to-server calls skip it explicitly
+      'ngrok-skip-browser-warning': '1',
+    },
+  };
 }
 
 /** null = unreachable, misconfigured or invalid response (never throws). */
