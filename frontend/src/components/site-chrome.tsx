@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { NavLink } from '@/components/nav-link';
 import { getDict } from '@/lib/i18n/server';
 import { getSessionUser } from '@/server/auth';
 
@@ -24,25 +25,17 @@ export async function SiteHeader() {
           AR-LOKAL
         </Link>
         <div className="ml-auto flex flex-wrap items-center gap-1 text-sm">
-          <Link className="btn-ghost" href="/about">
-            {t.nav.about}
-          </Link>
+          <NavLink href="/about">{t.nav.about}</NavLink>
           {user ? (
             <>
-              <Link className="btn-ghost" href="/studio">
+              <NavLink href="/studio" also={['/generate']}>
                 {t.nav.studio}
-              </Link>
-              <Link className="btn-ghost" href="/history">
+              </NavLink>
+              <NavLink href="/history" also={['/model']}>
                 {t.nav.history}
-              </Link>
-              <Link className="btn-ghost" href="/account">
-                {t.nav.account}
-              </Link>
-              {user.role === 'admin' && (
-                <Link className="btn-ghost" href="/admin">
-                  {t.nav.admin}
-                </Link>
-              )}
+              </NavLink>
+              <NavLink href="/account">{t.nav.account}</NavLink>
+              {user.role === 'admin' && <NavLink href="/admin">{t.nav.admin}</NavLink>}
               <form action="/auth/signout" method="post">
                 <button className="btn-ghost" type="submit">
                   {t.nav.logout}
@@ -51,9 +44,7 @@ export async function SiteHeader() {
             </>
           ) : (
             <>
-              <Link className="btn-ghost" href="/login">
-                {t.nav.login}
-              </Link>
+              <NavLink href="/login">{t.nav.login}</NavLink>
               <Link className="btn-primary" href="/register">
                 {t.nav.register}
               </Link>
