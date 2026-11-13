@@ -49,8 +49,7 @@ Note: YOLOX weights are trained on COCO (annotations CC BY 4.0). The model is us
 ## Fonts
 | Font | License | Source |
 |---|---|---|
-| Fraunces (Undercase Type) | SIL OFL 1.1 | https://github.com/undercasetype/Fraunces (via @fontsource-variable) |
-| Inter (Rasmus Andersson) | SIL OFL 1.1 | https://github.com/rsms/inter (via @fontsource-variable) |
+| Plus Jakarta Sans (Tokotype) | SIL OFL 1.1 | https://github.com/tokotype/PlusJakartaSans (via @fontsource-variable) |
 
 No icon set is used yet.
 
