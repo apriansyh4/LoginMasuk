@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 import { ModelViewer } from '@/components/model-viewer';
+import { SizeForm } from '@/components/size-form';
 import { getDict } from '@/lib/i18n/server';
 import { createClient } from '@/lib/supabase/server';
 import { requirePageUser } from '@/server/auth';
@@ -91,6 +92,7 @@ export default async function ModelPage({ params }: { params: Promise<{ productI
               ))}
             </ul>
           </div>
+          <SizeForm productId={productId} bboxM={bbox} t={M.resize} />
           <dl className="grid grid-cols-2 gap-3 card p-4 text-sm">
             <dt className="text-ink-soft">{M.size}</dt>
             <dd>

@@ -258,6 +258,16 @@ const id = {
     buyOn: 'Beli di {m}',
     viewerLoading: 'Memuat model 3D…',
     viewerError: 'Model 3D gagal dimuat.',
+    resize: {
+      title: 'Ukuran asli produk',
+      help: 'Isi satu sisi sesuai produk aslinya. Model 3D dan AR langsung menyesuaikan, tanpa dibuat ulang.',
+      axis: { height: 'Tinggi', width: 'Lebar', depth: 'Kedalaman' },
+      save: 'Simpan ukuran',
+      saving: 'Menyimpan…',
+      saved: 'Ukuran disimpan. Model sudah menyesuaikan.',
+      invalid: 'Isi angka antara 0,5 dan 500 cm.',
+      error: 'Ukuran gagal disimpan. Coba lagi.',
+    },
     ar: {
       button: 'Lihat di ruangan Anda (AR)',
       hint: 'Ketuk tombol, arahkan kamera ke lantai atau meja, lalu ketuk layar untuk menaruh produk dengan ukuran kira-kira aslinya.',
