@@ -67,13 +67,14 @@ export default async function ModelPage({ params }: { params: Promise<{ productI
               alt={product.name ?? M.title}
               loadingText={M.viewerLoading}
               errorText={M.viewerError}
+              arTexts={M.ar}
+              vertexColours={model.texture_mode === 'vertex_color'}
             />
           ) : (
             <p role="alert" className="rounded-xl bg-danger-soft p-4 text-sm text-danger">
               {M.viewerError}
             </p>
           )}
-          <p className="mt-3 text-sm text-ink-soft">{M.arLater}</p>
         </div>
         <aside className="space-y-4">
           <p className="inline-block rounded-full bg-indigo px-3 py-1 text-xs font-semibold tracking-wide text-white">

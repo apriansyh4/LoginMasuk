@@ -258,7 +258,14 @@ const id = {
     buyOn: 'Beli di {m}',
     viewerLoading: 'Memuat model 3D…',
     viewerError: 'Model 3D gagal dimuat.',
-    arLater: 'Tampilan AR di ruangan Anda hadir di Milestone 3.',
+    ar: {
+      button: 'Lihat di ruangan Anda (AR)',
+      hint: 'Ketuk tombol, arahkan kamera ke lantai atau meja, lalu ketuk layar untuk menaruh produk dengan ukuran kira-kira aslinya.',
+      unsupported:
+        'AR tidak tersedia di perangkat ini. Buka halaman ini di HP Android yang mendukung ARCore (Chrome) atau iPhone/iPad (Safari).',
+      failed: 'AR gagal dibuka di perangkat ini. Model 3D tetap bisa diputar di atas.',
+      iosNote: 'Di iPhone, warna model bisa tampil lebih polos karena model dibuat dalam mode CPU (warna per titik).',
+    },
     disabled: 'Model ini dinonaktifkan oleh admin.',
     none: 'Belum ada model 3D untuk produk ini.',
   },
@@ -567,7 +574,14 @@ const en: Dictionary = {
     buyOn: 'Buy on {m}',
     viewerLoading: 'Loading 3D model…',
     viewerError: 'The 3D model failed to load.',
-    arLater: 'Viewing in your room (AR) arrives in Milestone 3.',
+    ar: {
+      button: 'View in your room (AR)',
+      hint: 'Tap the button, point the camera at the floor or a table, then tap the screen to place the product at roughly its real size.',
+      unsupported:
+        'AR is not available on this device. Open this page on an ARCore-capable Android phone (Chrome) or an iPhone/iPad (Safari).',
+      failed: 'AR could not start on this device. You can still rotate the 3D model above.',
+      iosNote: 'On iPhone the model may look plainer, because CPU-mode models store colour per vertex.',
+    },
     disabled: 'This model has been disabled by an admin.',
     none: 'There is no 3D model for this product yet.',
   },

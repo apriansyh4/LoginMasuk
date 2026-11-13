@@ -110,6 +110,11 @@ test('ready model page: viewer loads the GLB, AI label, quality, size note, buy 
   const viewer = page.locator('model-viewer');
   await expect(viewer).toHaveCount(1, { timeout: 20_000 });
   await expect.poll(() => viewer.evaluate((el) => (el as unknown as { loaded: boolean }).loaded), { timeout: 30_000 }).toBe(true);
+  // AR is wired (WebXR → Scene Viewer → Quick Look); desktop Chromium has no AR, so the honest note shows
+  expect(await viewer.getAttribute('ar-modes')).toBe('webxr scene-viewer quick-look');
+  expect(await viewer.getAttribute('ar-scale')).toBe('fixed');
+  await expect(page.getByTestId('ar-unsupported')).toBeVisible();
+  await expect(page.getByRole('button', { name: /Lihat di ruangan Anda|View in your room/ })).toHaveCount(0);
   await expect(page.getByText(/gagal dimuat|failed to load/)).toHaveCount(0);
 
   await page.goto('/history?status=ready');

@@ -13,8 +13,8 @@ Environment: 2 vCPU Intel Xeon @ 2.10 GHz, 7 GB RAM, **no GPU**, onnxruntime CPU
 
 Disk: ISNet 179 MB, YOLOX-s 36 MB. OpenCLIP ViT-B-32 is ≈ 600 MB (not downloaded here).
 
-## TripoSR (Milestone 2): NOT YET MEASURED WITH REAL WEIGHTS
-The build environment has no GPU and can't reach huggingface.co, so no real-weight run has happened yet. What *was* run: the full TripoSR code path, on CPU, with a tiny random-weight model (`tests/test_reconstruction.py::test_engine_end_to_end_with_real_triposr_code`), which proves the integration but says nothing about speed or memory.
+## TripoSR (Milestone 2): first real-weight run on CPU
+First real run: 2026-11-12 23:06 WIB on the owner's laptop, real `stabilityai/TripoSR` weights, one product photo (a handbag). Numbers below come from `generated_models` (time) and a Task Manager screenshot taken during the run (memory). The build environment itself has no GPU and can't reach huggingface.co; there it ran the full TripoSR code path, on CPU, with a tiny random-weight model (`tests/test_reconstruction.py::test_engine_end_to_end_with_real_triposr_code`), which proves the integration but says nothing about speed or memory.
 
 **Record real numbers here on first run.** Each finished job stores `duration_ms` and `engine_info.timingsMs` (geometry and texture) in `generated_models`. Collect them with:
 ```sql
@@ -23,10 +23,10 @@ from generated_models order by created_at desc limit 10;
 ```
 | Machine | Device | Settings | Time per model | Peak memory | Status |
 |---|---|---|---|---|---|
-| Owner laptop: AMD Radeon iGPU (no CUDA), 14 GB RAM | CPU | mc 160, vertex colours | _to be measured_ | _to be measured_ | not run |
+| Owner laptop: AMD Radeon iGPU (no CUDA), 16 GB DDR5 (13.7 GB usable), Windows, torch 2.15.0+cpu | CPU | mc 160, vertex colours | **26 s total** (geometry 22.1 s, texture 0 s) | whole system at 13.2 / 13.7 GB (96 %), commit 27.2 / 27.8 GB; ai-service share not isolated | 1 run, quality `fair`, 35,540 faces |
 | Rented NVIDIA GPU (demo day) | CUDA | mc 256, baked 2048² texture | _to be measured_ | _to be measured_ | not run |
 
-TripoSR's own README states roughly 6 GB of VRAM for one image at default settings; that figure is unverified here. On CPU, expect minutes per model. The CPU profile lowers marching-cubes resolution and skips texture baking to keep time and RAM down. Close other heavy apps on a 14 GB machine.
+TripoSR's own README states roughly 6 GB of VRAM for one image at default settings; that figure is unverified here. On this laptop the CPU path took under half a minute, much faster than first expected. Memory, not time, is the limit: the run pushed the machine to its commit ceiling, so keep other apps closed and keep concurrency at 1. Measured once; repeat with several images before quoting it as typical. The CPU profile lowers marching-cubes resolution and skips texture baking to keep time and RAM down. Close other heavy apps on a 14 GB machine.
 
 ## What a no-GPU deployment can do
 Everything works. 3D generation runs on CPU only if `AILOKAL_ALLOW_CPU_RECONSTRUCTION=true` (slow, with a warning in the UI); otherwise generation is honestly reported unavailable (`no_gpu`).

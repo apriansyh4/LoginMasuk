@@ -15,30 +15,49 @@ declare module 'react' {
         exposure?: string;
         'environment-image'?: string;
         'interaction-prompt'?: string;
+        ar?: boolean;
+        'ar-modes'?: string;
+        'ar-scale'?: string;
+        'ar-placement'?: string;
       };
     }
   }
 }
 
+export type ArTexts = { button: string; hint: string; unsupported: string; failed: string; iosNote: string };
+
+type ModelViewerElement = HTMLElement & { canActivateAR?: boolean; activateAR?: () => Promise<void> };
+
 /**
- * Basic 3D viewer (client-only). Milestone 3 adds reset camera, AR and share.
- * Loading/error states come from model-viewer's own `progress` / `error` events.
+ * 3D viewer (client-only) with AR placement.
+ * AR order: WebXR (Chrome Android, rendered by model-viewer itself) → Scene Viewer (Android
+ * fallback) → Quick Look (iOS; model-viewer converts the GLB to USDZ on the device).
+ * The model is exported in metres, so `ar-scale="fixed"` shows it at its estimated real size.
+ * The AR button is only shown when the browser reports AR support (`canActivateAR`);
+ * otherwise an honest "not available on this device" note is shown.
  */
 export function ModelViewer({
   src,
   alt,
   loadingText,
   errorText,
+  arTexts,
+  vertexColours = false,
 }: {
   src: string;
   alt: string;
   loadingText: string;
   errorText: string;
+  arTexts?: ArTexts;
+  vertexColours?: boolean;
 }) {
-  const ref = useRef<HTMLElement | null>(null);
+  const ref = useRef<ModelViewerElement | null>(null);
   const [ready, setReady] = useState(false);
   const [progress, setProgress] = useState(0);
   const [failed, setFailed] = useState(false);
+  const [canAR, setCanAR] = useState<boolean | null>(null);
+  const [arFailed, setArFailed] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -53,13 +72,32 @@ export function ModelViewer({
     if (!el) return;
     const onProgress = (e: Event) => setProgress((e as CustomEvent<{ totalProgress: number }>).detail.totalProgress);
     const onError = () => setFailed(true);
+    const onLoad = () => setCanAR(Boolean(el.canActivateAR));
+    const onArStatus = (e: Event) => {
+      if ((e as CustomEvent<{ status: string }>).detail.status === 'failed') setArFailed(true);
+    };
     el.addEventListener('progress', onProgress);
     el.addEventListener('error', onError);
+    el.addEventListener('load', onLoad);
+    el.addEventListener('ar-status', onArStatus);
     return () => {
       el.removeEventListener('progress', onProgress);
       el.removeEventListener('error', onError);
+      el.removeEventListener('load', onLoad);
+      el.removeEventListener('ar-status', onArStatus);
     };
   }, [ready]);
+
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    const ios = /iPad|iPhone|iPod/.test(ua) || (ua.includes('Macintosh') && navigator.maxTouchPoints > 1);
+    queueMicrotask(() => setIsIOS(ios));
+  }, []);
+
+  const startAR = () => {
+    setArFailed(false);
+    ref.current?.activateAR?.().catch(() => setArFailed(true));
+  };
 
   if (failed) {
     return (
@@ -72,30 +110,61 @@ export function ModelViewer({
     );
   }
   return (
-    <div className="relative aspect-square overflow-hidden rounded-[var(--radius-card)] bg-gradient-to-b from-white to-cream">
-      {ready && (
-        <model-viewer
-          ref={ref}
-          src={src}
-          alt={alt}
-          camera-controls
-          shadow-intensity="0.7"
-          shadow-softness="1"
-          exposure="1"
-          environment-image="neutral"
-          interaction-prompt="auto"
-          style={{ width: '100%', height: '100%', background: 'transparent' }}
-        />
-      )}
-      {(!ready || progress < 1) && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4" role="status">
-          <p className="text-center text-sm text-ink-soft">{loadingText}</p>
-          <div className="mx-auto mt-2 h-1.5 max-w-xs rounded-full bg-sand">
-            <div
-              className="h-1.5 rounded-full bg-terracotta transition-[width]"
-              style={{ width: `${Math.round(progress * 100)}%` }}
-            />
+    <div>
+      <div className="relative aspect-square overflow-hidden rounded-[var(--radius-card)] bg-gradient-to-b from-white to-cream">
+        {ready && (
+          <model-viewer
+            ref={ref}
+            src={src}
+            alt={alt}
+            camera-controls
+            shadow-intensity="0.7"
+            shadow-softness="1"
+            exposure="1"
+            environment-image="neutral"
+            interaction-prompt="auto"
+            ar={Boolean(arTexts)}
+            ar-modes="webxr scene-viewer quick-look"
+            ar-scale="fixed"
+            ar-placement="floor"
+            style={{ width: '100%', height: '100%', background: 'transparent' }}
+          >
+            {/* model-viewer would draw its own AR button; we render ours below instead. */}
+            <span slot="ar-button" hidden />
+          </model-viewer>
+        )}
+        {(!ready || progress < 1) && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4" role="status">
+            <p className="text-center text-sm text-ink-soft">{loadingText}</p>
+            <div className="mx-auto mt-2 h-1.5 max-w-xs rounded-full bg-sand">
+              <div
+                className="h-1.5 rounded-full bg-terracotta transition-[width]"
+                style={{ width: `${Math.round(progress * 100)}%` }}
+              />
+            </div>
           </div>
+        )}
+      </div>
+      {arTexts && canAR !== null && (
+        <div className="mt-4 space-y-2">
+          {canAR ? (
+            <>
+              <button type="button" onClick={startAR} className="btn-primary w-full sm:w-auto">
+                {arTexts.button}
+              </button>
+              <p className="text-sm text-ink-soft">{arTexts.hint}</p>
+              {isIOS && vertexColours && <p className="text-xs text-ink-soft">{arTexts.iosNote}</p>}
+            </>
+          ) : (
+            <p className="text-sm text-ink-soft" data-testid="ar-unsupported">
+              {arTexts.unsupported}
+            </p>
+          )}
+          {arFailed && (
+            <p role="alert" className="rounded-xl bg-danger-soft p-3 text-sm text-danger">
+              {arTexts.failed}
+            </p>
+          )}
         </div>
       )}
     </div>
