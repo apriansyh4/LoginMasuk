@@ -1,30 +1,27 @@
 import Link from 'next/link';
-import { cookies } from 'next/headers';
-import { revalidatePath } from 'next/cache';
 import { getDict } from '@/lib/i18n/server';
 import { getSessionUser } from '@/server/auth';
 
-async function setLang(form: FormData) {
-  'use server';
-  const lang = form.get('lang') === 'en' ? 'en' : 'id';
-  (await cookies()).set('lang', lang, { path: '/', sameSite: 'lax', maxAge: 60 * 60 * 24 * 365, httpOnly: false });
-  revalidatePath('/', 'layout');
-}
-
 export async function SiteHeader() {
-  const { lang, t } = await getDict();
+  const { t } = await getDict();
   const user = await getSessionUser().catch(() => null);
   return (
-    <header className="border-b border-sand/70 bg-paper/90 backdrop-blur">
+    <header className="relative z-10 border-b-2 border-ink bg-white">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2"
       >
-        Skip to content
+        Langsung ke konten
       </a>
-      <nav aria-label="Main" className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-5 py-4">
-        <Link href="/" className="font-display text-xl font-semibold tracking-tight text-ink">
-          AR<span className="text-terracotta">·</span>LOKAL
+      <nav aria-label="Navigasi utama" className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-5 py-4">
+        <Link href="/" className="flex items-center gap-2.5 font-display text-xl font-extrabold text-ink">
+          <span
+            aria-hidden="true"
+            className="flex size-8 items-center justify-center rounded-lg border-2 border-ink bg-kunyit text-[11px] font-extrabold"
+          >
+            AR
+          </span>
+          AR-LOKAL
         </Link>
         <div className="ml-auto flex flex-wrap items-center gap-1 text-sm">
           <Link className="btn-ghost" href="/about">
@@ -62,16 +59,6 @@ export async function SiteHeader() {
               </Link>
             </>
           )}
-          <form action={setLang} className="ml-1">
-            <input type="hidden" name="lang" value={lang === 'id' ? 'en' : 'id'} />
-            <button
-              className="btn-ghost px-3"
-              type="submit"
-              aria-label={lang === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
-            >
-              <span aria-hidden="true">{lang === 'id' ? 'EN' : 'ID'}</span>
-            </button>
-          </form>
         </div>
       </nav>
     </header>
@@ -81,16 +68,26 @@ export async function SiteHeader() {
 export async function SiteFooter() {
   const { t } = await getDict();
   return (
-    <footer className="mt-24 border-t border-sand/70 bg-cream/60">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-10 text-sm text-ink-soft md:flex-row md:items-center">
-        <p className="font-display text-base text-ink">AR·LOKAL</p>
-        <nav aria-label="Footer" className="flex flex-wrap gap-4">
-          <Link href="/about">{t.footer.about}</Link>
-          <Link href="/privacy">{t.footer.privacy}</Link>
-          <Link href="/ai-transparency">{t.footer.ai}</Link>
-          <Link href="/credits">{t.footer.credits}</Link>
+    <footer className="mt-24 bg-ink text-white">
+      <div className="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-10 text-sm md:flex-row md:items-center">
+        <div>
+          <p className="font-display text-lg font-extrabold">AR-LOKAL</p>
+          <p className="mt-1 text-white/75">Foto produk UMKM jadi 3D dan AR.</p>
+        </div>
+        <nav aria-label="Navigasi bawah" className="flex flex-wrap gap-x-5 gap-y-2 md:ml-auto">
+          <Link className="text-white/85 hover:text-kunyit" href="/about">
+            {t.footer.about}
+          </Link>
+          <Link className="text-white/85 hover:text-kunyit" href="/privacy">
+            {t.footer.privacy}
+          </Link>
+          <Link className="text-white/85 hover:text-kunyit" href="/ai-transparency">
+            {t.footer.ai}
+          </Link>
+          <Link className="text-white/85 hover:text-kunyit" href="/credits">
+            {t.footer.credits}
+          </Link>
         </nav>
-        <p className="md:ml-auto">{t.common.notAffiliated}</p>
       </div>
     </footer>
   );

@@ -6,7 +6,7 @@ import { getDict } from '@/lib/i18n/server';
 import { createClient } from '@/lib/supabase/server';
 import { requirePageUser } from '@/server/auth';
 
-export const metadata = { title: '3D model' };
+export const metadata = { title: 'Model 3D' };
 
 type EngineInfo = { cpu_mode?: boolean; device?: string; sizeSource?: string; bboxM?: number[] };
 
@@ -34,7 +34,7 @@ export default async function ModelPage({ params }: { params: Promise<{ productI
   if (!model || model.status !== 'ready') {
     return (
       <div className="mx-auto max-w-lg card p-8">
-        <h1 className="font-display text-2xl font-semibold">{product.name ?? t.history.untitled}</h1>
+        <h1 className="font-display text-2xl font-extrabold">{product.name ?? t.history.untitled}</h1>
         <p className="mt-4 text-ink-soft">{model?.status === 'disabled' ? M.disabled : M.none}</p>
         <Link href={`/studio/${productId}`} className="mt-6 btn-secondary">
           {t.gen.backToResult}
@@ -58,7 +58,7 @@ export default async function ModelPage({ params }: { params: Promise<{ productI
   return (
     <div>
       <p className="eyebrow">{M.title}</p>
-      <h1 className="mt-2 font-display text-3xl font-semibold">{product.name ?? t.history.untitled}</h1>
+      <h1 className="mt-2 font-display text-3xl font-extrabold">{product.name ?? t.history.untitled}</h1>
       <div className="mt-8 grid gap-8 md:grid-cols-[1.2fr_0.8fr]">
         <div>
           {signed?.signedUrl ? (

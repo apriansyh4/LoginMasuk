@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
-import { admin, ENABLED, FIXTURES, registerAndVerify, uploadFixture } from './helpers';
+import { admin, ENABLED, registerAndVerify, uploadFixture } from './helpers';
 
 test.skip(!ENABLED || process.env.E2E_AI_MODE !== 'partial', 'needs real stack + ai-service (E2E_AI_MODE=partial)');
 
@@ -52,17 +52,12 @@ async function seedReadyModel(productId: string) {
   return { jobId: job!.id as string, key };
 }
 
+// The Studio no longer takes marketplace links; older products may still carry one,
+// so seed it directly to keep covering the buy button on the model page.
 async function marketplaceProduct(page: Page, url: string) {
-  await page.goto('/studio');
-  await page.getByRole('radio', { name: /Tautan marketplace|Marketplace link/ }).click();
-  await page.getByLabel(/Tautan produk|product link/).fill(url);
-  await page.getByRole('button', { name: /Periksa tautan|Check link/ }).click();
-  await expect(page.getByText(/tidak dapat membaca listing|couldn't read this listing/)).toBeVisible({ timeout: 30_000 });
-  await page.getByLabel(/Gambar produk|Product image/).setInputFiles(path.join(FIXTURES, 'accept_vase_synthetic.png'));
-  await page.getByLabel(/memiliki gambar ini|own this image/).check();
-  await page.getByRole('button', { name: /Validasi gambar|Validate image/ }).click();
-  await expect(page).toHaveURL(/\/studio\/[0-9a-f-]{36}$/, { timeout: 60_000 });
-  return page.url().split('/').pop()!;
+  const id = await uploadFixture(page, 'accept_vase_synthetic.png');
+  await admin().from('products').update({ marketplace: 'shopee', original_product_url: url }).eq('id', id);
+  return id;
 }
 
 test('generation unavailable: honest disabled state, API refuses, nothing queued, no quota used', async ({ page, baseURL }) => {

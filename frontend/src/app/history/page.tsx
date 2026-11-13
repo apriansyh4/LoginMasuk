@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { requirePageUser } from '@/server/auth';
 import { DeleteButton } from './delete-button';
 
-export const metadata = { title: 'History' };
+export const metadata = { title: 'Riwayat' };
 
 const PAGE_SIZE = 12;
 const STATUSES = ['pending', 'validated', 'rejected', 'generating', 'ready', 'failed', 'disabled'] as const;
@@ -58,7 +58,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
   return (
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="font-display text-4xl font-semibold">{H.title}</h1>
+        <h1 className="font-display text-4xl font-extrabold">{H.title}</h1>
         <Link href="/studio" className="btn-primary">
           {t.landing.cta}
         </Link>
@@ -191,7 +191,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
       </ul>
 
       {pages > 1 && (
-        <nav aria-label="Pagination" className="mt-8 flex items-center justify-center gap-3 text-sm">
+        <nav aria-label="Halaman" className="mt-8 flex items-center justify-center gap-3 text-sm">
           {f.page > 1 && (
             <Link className="btn-secondary" href={qs({ page: f.page - 1 })}>
               {H.prev}

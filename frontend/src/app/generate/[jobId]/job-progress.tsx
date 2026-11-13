@@ -166,7 +166,7 @@ export function JobProgress({
                   state === 'done'
                     ? 'bg-sage text-white'
                     : state === 'active'
-                      ? 'animate-pulse bg-terracotta text-white'
+                      ? 'animate-pulse bg-nila text-white'
                       : state === 'stopped'
                         ? 'bg-danger text-white'
                         : 'bg-cream text-ink-soft'

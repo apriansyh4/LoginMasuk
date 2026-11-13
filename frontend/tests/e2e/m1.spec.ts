@@ -65,21 +65,11 @@ test.describe('registration and roles', () => {
 });
 
 test.describe('studio input rules', () => {
-  test('lookalike and non-product URLs are rejected with a clear message', async ({ page }) => {
+  test('studio takes an uploaded photo only (no marketplace link field)', async ({ page }) => {
     await registerAndVerify(page);
     await page.goto('/studio');
-    await page.getByRole('radio', { name: /Tautan marketplace|Marketplace link/ }).click();
-    const input = page.getByLabel(/Tautan produk|product link/);
-    const check = page.getByRole('button', { name: /Periksa tautan|Check link/ });
-    for (const [url, msg] of [
-      ['https://shopee.co.id.evil.com/Tas-i.1.2', /Shopee Indonesia dan Tokopedia|Shopee Indonesia and Tokopedia/],
-      ['https://www.tokopedia.com/search?q=tas', /bukan halaman produk|not a product page/],
-      ['http://shopee.co.id/Tas-i.1.2', /https:\/\//],
-    ] as const) {
-      await input.fill(url);
-      await check.click();
-      await expect(page.getByText(msg)).toBeVisible();
-    }
+    await expect(page.getByLabel(/Tautan produk/)).toHaveCount(0);
+    await expect(page.getByLabel(/Gambar produk/)).toHaveCount(1);
   });
 
   test('CTA stays disabled until an image is chosen and rights are confirmed', async ({ page }) => {
@@ -159,34 +149,5 @@ test.describe('validation flow + history (real models)', () => {
     const { data } = await admin().from('products').select('id').eq('id', aId);
     expect(data).toHaveLength(1);
     await ctxB.close();
-  });
-
-  test('marketplace URL: listing unreadable here -> upload fallback keeps the original URL verbatim', async ({ page }) => {
-    await registerAndVerify(page);
-    await page.goto('/studio');
-    await page.getByRole('radio', { name: /Tautan marketplace|Marketplace link/ }).click();
-    const url = 'https://shopee.co.id/Vas-Keramik-Kasongan-i.123456.7890123?sp_atk=e2e';
-    await page.getByLabel(/Tautan produk|product link/).fill(url);
-    await page.getByRole('button', { name: /Periksa tautan|Check link/ }).click();
-    await expect(page.getByText(/tidak dapat membaca listing|couldn't read this listing/)).toBeVisible({ timeout: 30_000 });
-    await page
-      .getByLabel(/Gambar produk|Product image/)
-      .setInputFiles(`${process.cwd()}/../ai-service/tests/fixtures/accept_vase_synthetic.png`);
-    await page.getByLabel(/memiliki gambar ini|own this image/).check();
-    await page.getByRole('button', { name: /Validasi gambar|Validate image/ }).click();
-    await expect(page).toHaveURL(/\/studio\/[0-9a-f-]{36}$/, { timeout: 60_000 });
-    const id = page.url().split('/').pop()!;
-    const { data } = await admin()
-      .from('products')
-      .select('marketplace, original_product_url, canonical_url')
-      .eq('id', id)
-      .single();
-    expect(data).toEqual({
-      marketplace: 'shopee',
-      original_product_url: url,
-      canonical_url: 'https://shopee.co.id/product/123456/7890123',
-    });
-    await page.goto('/history');
-    await expect(page.locator(`a[href="${url}"]`)).toHaveAttribute('rel', 'noopener noreferrer');
   });
 });

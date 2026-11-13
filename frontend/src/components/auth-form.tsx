@@ -56,7 +56,7 @@ export function AuthForm(props: {
       ))}
       {props.consent && (
         <div className="flex gap-3 rounded-xl bg-cream p-4">
-          <input id="consent" name="consent" type="checkbox" required className="mt-1 size-5 accent-terracotta" />
+          <input id="consent" name="consent" type="checkbox" required className="mt-1 size-5 accent-nila" />
           <label htmlFor="consent" className="text-sm leading-relaxed">
             {props.consent.label}{' '}
             <Link className="underline" href="/privacy" target="_blank">

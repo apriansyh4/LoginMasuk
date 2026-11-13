@@ -15,18 +15,18 @@ export default async function AdminPage() {
     getAiHealth(),
   ]);
   const stats: [string, string | number][] = [
-    ['Users', users.count ?? '—'],
-    ['Submissions', products.count ?? '—'],
-    ['Rejected validations', rejected.count ?? '—'],
+    ['Pengguna', users.count ?? '—'],
+    ['Kiriman', products.count ?? '—'],
+    ['Validasi ditolak', rejected.count ?? '—'],
     [
-      'Validation service',
-      health ? (health.validationAvailable ? 'available' : `missing: ${health.validationMissing.join(', ')}`) : 'unreachable',
+      'Layanan validasi',
+      health ? (health.validationAvailable ? 'tersedia' : `kurang: ${health.validationMissing.join(', ')}`) : 'tidak terjangkau',
     ],
-    ['GPU', health?.gpuAvailable ? (health.gpuName ?? 'yes') : 'not available'],
+    ['GPU', health?.gpuAvailable ? (health.gpuName ?? 'ya') : 'tidak tersedia'],
   ];
   return (
     <div>
-      <h1 className="font-display text-4xl font-semibold">Admin</h1>
+      <h1 className="font-display text-4xl font-extrabold">Admin</h1>
       <dl className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map(([k, v]) => (
           <div key={k} className="card p-5">
@@ -35,7 +35,7 @@ export default async function AdminPage() {
           </div>
         ))}
       </dl>
-      <p className="mt-6 text-sm text-ink-soft">Moderation, user management and audit views arrive in Milestone 4.</p>
+      <p className="mt-6 text-sm text-ink-soft">Moderasi, pengelolaan pengguna, dan log audit akan segera hadir.</p>
     </div>
   );
 }

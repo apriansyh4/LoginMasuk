@@ -9,11 +9,10 @@ export default async function StudioPage() {
   const { t } = await getDict();
   return (
     <div className="mx-auto max-w-3xl">
-      <p className="eyebrow">{t.common.brand}</p>
-      <h1 className="mt-2 font-display text-4xl font-semibold">{t.studio.title}</h1>
+      <h1 className="font-display text-4xl font-extrabold">{t.studio.title}</h1>
       <p className="mt-3 text-ink-soft">{t.studio.intro}</p>
       <div className="mt-8">
-        <StudioForm t={{ studio: t.studio, urlErrors: t.urlErrors, history: t.history, common: t.common }} />
+        <StudioForm t={{ studio: t.studio, history: t.history, common: t.common }} />
       </div>
     </div>
   );

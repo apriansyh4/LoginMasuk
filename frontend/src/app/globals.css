@@ -1,30 +1,34 @@
 @import 'tailwindcss';
-@import '@fontsource-variable/fraunces/index.css';
-@import '@fontsource-variable/inter/index.css';
+@import '@fontsource-variable/plus-jakarta-sans/index.css';
 
-/* AR-LOKAL design tokens: warm neutrals, restrained earthy accents.
-   Contrast pairs used for text were checked for WCAG AA (docs/UX_NOTES.md). */
+/* AR-LOKAL "lapak" palette: colours from Indonesian craft and market life.
+   kunyit = turmeric, nila = indigo dye (batik), daun = banana leaf, cabai = chili.
+   Text pairs: ink on white 15.9:1, ink-soft on white 8.1:1, nila on white 10.6:1,
+   ink on kunyit 9.6:1, cabai on white 6.0:1, kunyit-dark on white 5.4:1 (WCAG AA). */
 @theme {
-  --color-paper: #fbf8f3; /* page background */
-  --color-cream: #f3ede3; /* cards / sections */
-  --color-sand: #e6dccd; /* borders */
-  --color-ink: #2a2420; /* body text 14.6:1 on paper */
-  --color-ink-soft: #5c524a; /* secondary text 7.1:1 on paper */
-  --color-terracotta: #a4482a; /* primary accent 5.6:1 on paper */
-  --color-terracotta-dark: #86391f;
-  --color-sogan: #6b4a2b; /* sogan brown */
-  --color-indigo: #2f3e6b; /* indigo 10.0:1 on paper */
-  --color-sage: #5f7356; /* sage 4.9:1 on paper */
-  --color-sage-soft: #e3e9dc;
-  --color-danger: #9b2c2c;
-  --color-danger-soft: #f7e4e1;
-  --color-warn-soft: #f6ecd6;
+  --color-paper: #ffffff; /* page background */
+  --color-cream: #f1f3fb; /* quiet surfaces (indigo-tinted) */
+  --color-sand: #d6daee; /* hairline borders */
+  --color-ink: #141a46; /* text, sticker outlines */
+  --color-ink-soft: #474c6e; /* secondary text */
+  --color-nila: #1f2c8f; /* links, active states */
+  --color-nila-dark: #172170;
+  --color-indigo: #1f2c8f;
+  --color-kunyit: #f6b40e; /* brand yellow: hero band, primary buttons */
+  --color-kunyit-soft: #fff2c7;
+  --color-kunyit-dark: #8a5a00; /* yellow-family text on white */
+  --color-sage: #1e7a4c; /* daun: success */
+  --color-sage-soft: #ddf2e5;
+  --color-danger: #c8102e; /* cabai */
+  --color-danger-soft: #fde4e7;
+  --color-warn-soft: #fff2c7;
 
-  --font-display: 'Fraunces Variable', ui-serif, Georgia, serif;
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
 
-  --shadow-soft: 0 1px 2px rgb(42 36 32 / 0.04), 0 8px 24px -12px rgb(42 36 32 / 0.18);
-  --radius-card: 1.25rem;
+  --shadow-soft: 0 1px 2px rgb(20 26 70 / 0.05);
+  --shadow-stiker: 4px 4px 0 var(--color-ink);
+  --radius-card: 1rem;
 }
 
 html {
@@ -35,7 +39,7 @@ html {
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-indigo);
+  outline: 3px solid var(--color-nila);
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -53,33 +57,45 @@ html {
 
 /* Component utilities (Tailwind v4 @utility so they compose with @apply and variants). */
 @utility card {
-  @apply rounded-[var(--radius-card)] border border-sand bg-white/70 shadow-[var(--shadow-soft)];
+  @apply rounded-[var(--radius-card)] border border-sand bg-white shadow-[var(--shadow-soft)];
+}
+
+/* The one loud device: a market-sticker / price-tag look (thick ink outline + hard offset shadow). */
+@utility stiker {
+  @apply rounded-[var(--radius-card)] border-2 border-ink bg-white shadow-[var(--shadow-stiker)];
 }
 
 @utility btn {
-  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition-[transform,box-shadow,background-color] disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-primary {
-  @apply btn bg-terracotta text-white hover:bg-terracotta-dark;
+  @apply btn border-2 border-ink bg-kunyit text-ink shadow-[3px_3px_0_var(--color-ink)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[4px_4px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:shadow-none disabled:hover:translate-0;
 }
 
 @utility btn-secondary {
-  @apply btn border border-sand bg-white text-ink hover:bg-cream;
+  @apply btn border-2 border-ink bg-white text-ink hover:bg-kunyit-soft;
 }
 
 @utility btn-ghost {
-  @apply btn text-ink-soft hover:bg-cream hover:text-ink;
+  @apply btn font-semibold text-ink-soft hover:bg-cream hover:text-ink;
 }
 
 @utility field {
-  @apply block w-full rounded-xl border border-sand bg-white px-4 py-3 text-base text-ink placeholder:text-ink-soft/70 focus:border-indigo;
+  @apply block w-full rounded-xl border-2 border-sand bg-white px-4 py-3 text-base text-ink placeholder:text-ink-soft/70 focus:border-nila;
 }
 
 @utility label {
-  @apply mb-1.5 block text-sm font-medium text-ink;
+  @apply mb-1.5 block text-sm font-bold text-ink;
 }
 
+/* Small section label: sentence case, never tracked-out caps. */
 @utility eyebrow {
-  @apply text-xs font-semibold tracking-[0.18em] text-sogan uppercase;
+  @apply text-sm font-bold text-kunyit-dark;
+}
+
+/* Kawung batik motif (four petals around a point), drawn as a quiet repeating texture. */
+@utility bg-kawung {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23141a46' stroke-opacity='.11' stroke-width='1.6'%3E%3Cellipse cx='28' cy='14' rx='7' ry='12'/%3E%3Cellipse cx='28' cy='42' rx='7' ry='12'/%3E%3Cellipse cx='14' cy='28' rx='12' ry='7'/%3E%3Cellipse cx='42' cy='28' rx='12' ry='7'/%3E%3Ccircle cx='28' cy='28' r='2.2' fill='%23141a46' fill-opacity='.11' stroke='none'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 56px 56px;
 }

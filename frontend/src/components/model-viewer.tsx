@@ -111,7 +111,7 @@ export function ModelViewer({
   }
   return (
     <div>
-      <div className="relative aspect-square overflow-hidden rounded-[var(--radius-card)] bg-gradient-to-b from-white to-cream">
+      <div className="relative aspect-square overflow-hidden rounded-[var(--radius-card)] border-2 border-ink bg-white bg-kawung">
         {ready && (
           <model-viewer
             ref={ref}
@@ -138,7 +138,7 @@ export function ModelViewer({
             <p className="text-center text-sm text-ink-soft">{loadingText}</p>
             <div className="mx-auto mt-2 h-1.5 max-w-xs rounded-full bg-sand">
               <div
-                className="h-1.5 rounded-full bg-terracotta transition-[width]"
+                className="h-1.5 rounded-full bg-nila transition-[width]"
                 style={{ width: `${Math.round(progress * 100)}%` }}
               />
             </div>

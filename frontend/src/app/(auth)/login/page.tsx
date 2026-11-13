@@ -7,7 +7,7 @@ import { getSessionUser } from '@/server/auth';
 import { loginAction } from '../actions';
 import { AuthShell } from '../shell';
 
-export const metadata = { title: 'Login' };
+export const metadata = { title: 'Masuk' };
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
   const sp = await searchParams;
@@ -20,7 +20,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       footer={
         <>
           {t.auth.noAccount}{' '}
-          <Link className="font-medium text-terracotta underline" href={`/register?next=${encodeURIComponent(next)}`}>
+          <Link className="font-medium text-nila underline" href={`/register?next=${encodeURIComponent(next)}`}>
             {t.nav.register}
           </Link>
         </>

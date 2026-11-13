@@ -3,7 +3,7 @@ import { getDict } from '@/lib/i18n/server';
 import { resendAction } from '../actions';
 import { AuthShell } from '../shell';
 
-export const metadata = { title: 'Verify email' };
+export const metadata = { title: 'Verifikasi email' };
 
 export default async function VerifyPage({ searchParams }: { searchParams: Promise<{ sent?: string }> }) {
   const { sent } = await searchParams;

@@ -3,7 +3,7 @@ import { getDict } from '@/lib/i18n/server';
 import { forgotAction } from '../actions';
 import { AuthShell } from '../shell';
 
-export const metadata = { title: 'Reset password' };
+export const metadata = { title: 'Atur ulang kata sandi' };
 
 export default async function ForgotPage() {
   const { t } = await getDict();

@@ -4,21 +4,25 @@ import { OfflineBanner } from '@/components/offline-banner';
 import { getDict } from '@/lib/i18n/server';
 import './globals.css';
 
+// Every page depends on the signed-in user (header, guards), so render per request
+// (this used to happen implicitly via the language cookie).
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: { default: 'AR-LOKAL', template: '%s · AR-LOKAL' },
-  description: 'Turn one product photo into an AI-generated 3D model and AR experience for Indonesian MSMEs.',
+  description: 'Ubah satu foto produk UMKM menjadi model 3D dan AR dengan AI.',
 };
 
-export const viewport: Viewport = { themeColor: '#fbf8f3', width: 'device-width', initialScale: 1 };
+export const viewport: Viewport = { themeColor: '#f6b40e', width: 'device-width', initialScale: 1 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { lang, t } = await getDict();
   return (
     <html lang={lang}>
-      <body className="min-h-dvh">
+      <body className="flex min-h-dvh flex-col overflow-x-clip">
         <SiteHeader />
         <OfflineBanner message={t.common.offline} />
-        <main id="main" className="mx-auto w-full max-w-6xl px-5 pt-10">
+        <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-5 pt-10">
           {children}
         </main>
         <SiteFooter />

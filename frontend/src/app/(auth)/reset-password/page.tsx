@@ -5,7 +5,7 @@ import { getSessionUser } from '@/server/auth';
 import { resetAction } from '../actions';
 import { AuthShell } from '../shell';
 
-export const metadata = { title: 'New password' };
+export const metadata = { title: 'Kata sandi baru' };
 
 export default async function ResetPage() {
   const { t } = await getDict();

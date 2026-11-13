@@ -1,4 +1,4 @@
-export const metadata = { title: 'Credits & Attribution' };
+export const metadata = { title: 'Kredit & Atribusi' };
 
 const ITEMS: [string, string, string][] = [
   ['TripoSR (VAST-AI-Research & Stability AI)', 'MIT', 'https://github.com/VAST-AI-Research/TripoSR'],
@@ -10,17 +10,16 @@ const ITEMS: [string, string, string][] = [
   ['model-viewer (Google)', 'Apache-2.0', 'https://github.com/google/model-viewer'],
   ['Next.js (Vercel)', 'MIT', 'https://github.com/vercel/next.js'],
   ['Supabase', 'Apache-2.0', 'https://github.com/supabase/supabase'],
-  ['Fraunces (Undercase Type)', 'SIL OFL 1.1', 'https://github.com/undercasetype/Fraunces'],
-  ['Inter (Rasmus Andersson)', 'SIL OFL 1.1', 'https://github.com/rsms/inter'],
+  ['Plus Jakarta Sans (Tokotype)', 'SIL OFL 1.1', 'https://github.com/tokotype/PlusJakartaSans'],
 ];
 
 export default function CreditsPage() {
   return (
     <article className="mx-auto max-w-2xl">
-      <h1 className="font-display text-4xl font-semibold">Credits &amp; Attribution</h1>
+      <h1 className="font-display text-4xl font-extrabold">Kredit &amp; Atribusi</h1>
       <p className="mt-4 text-ink-soft">
-        Full list with versions in <code>docs/ATTRIBUTION.md</code>. Shopee and Tokopedia are named only as neutral text; AR-LOKAL
-        is not affiliated with them.
+        Daftar lengkap beserta versinya ada di <code>docs/ATTRIBUTION.md</code>. AR-LOKAL dibangun di atas karya open-source
+        berikut.
       </p>
       <ul className="mt-8 divide-y divide-sand">
         {ITEMS.map(([name, license, href]) => (

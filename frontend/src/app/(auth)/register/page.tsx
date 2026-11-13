@@ -5,7 +5,7 @@ import { safeNext } from '@/lib/redirect';
 import { registerAction } from '../actions';
 import { AuthShell } from '../shell';
 
-export const metadata = { title: 'Register' };
+export const metadata = { title: 'Daftar' };
 
 export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const next = safeNext((await searchParams).next);
@@ -16,7 +16,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
       footer={
         <>
           {t.auth.haveAccount}{' '}
-          <Link className="font-medium text-terracotta underline" href={`/login?next=${encodeURIComponent(next)}`}>
+          <Link className="font-medium text-nila underline" href={`/login?next=${encodeURIComponent(next)}`}>
             {t.nav.login}
           </Link>
         </>

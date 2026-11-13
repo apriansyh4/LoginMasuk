@@ -9,7 +9,7 @@ import { requirePageUser } from '@/server/auth';
 import { quotaFor } from '@/server/generation';
 import { GenerateButton } from '@/components/generate-button';
 
-export const metadata = { title: 'Validation result' };
+export const metadata = { title: 'Hasil validasi' };
 
 const SUB_KEYS = ['sharpness', 'exposure', 'contrast', 'backgroundSimplicity', 'completeness'] as const;
 
@@ -61,7 +61,7 @@ export default async function ValidationResultPage({ params }: { params: Promise
   return (
     <div className="mx-auto max-w-4xl">
       <p className="eyebrow">{R.title}</p>
-      <h1 className="mt-2 font-display text-3xl font-semibold">{product.name ?? t.history.untitled}</h1>
+      <h1 className="mt-2 font-display text-3xl font-extrabold">{product.name ?? t.history.untitled}</h1>
       <div className="mt-8 grid gap-8 md:grid-cols-[0.9fr_1.1fr]">
         <div className="flex min-h-64 items-center justify-center overflow-hidden card p-4">
           {signed ? (
@@ -73,7 +73,7 @@ export default async function ValidationResultPage({ params }: { params: Promise
         </div>
         <div className="space-y-6">
           <div className={`rounded-xl p-4 ${v?.is_valid ? 'bg-sage-soft' : 'bg-danger-soft'}`} role="status">
-            <p className="font-display text-xl font-semibold">{v?.is_valid ? R.passed : R.failed}</p>
+            <p className="font-display text-xl font-extrabold">{v?.is_valid ? R.passed : R.failed}</p>
             <p className="mt-1 text-sm text-ink-soft">{R.savedInHistory}</p>
           </div>
           {v?.quality_score != null && (

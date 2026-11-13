@@ -27,7 +27,7 @@ export function ReasonList({ reasons, t }: { reasons: StoredReason[]; t: Diction
 
 export function ScoreBar({ label, value }: { label: string; value: number }) {
   const v = Math.max(0, Math.min(100, Math.round(value)));
-  const color = v >= 70 ? 'bg-sage' : v >= 45 ? 'bg-sogan' : 'bg-danger';
+  const color = v >= 70 ? 'bg-sage' : v >= 45 ? 'bg-kunyit-dark' : 'bg-danger';
   return (
     <div>
       <div className="flex justify-between text-sm">

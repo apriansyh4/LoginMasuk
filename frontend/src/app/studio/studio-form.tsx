@@ -3,35 +3,16 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import type { Dictionary } from '@/lib/i18n/dictionaries';
 
-type Mode = 'url' | 'upload';
 type Health = { reachable: boolean; validationAvailable: boolean } | null;
-type Resolved = {
-  ok: true;
-  marketplace: 'shopee' | 'tokopedia';
-  originalUrl: string;
-  metadataStatus: 'ok' | 'unavailable';
-  metadata: {
-    title: string | null;
-    price: number | null;
-    currency: string | null;
-    seller: string | null;
-    images: string[];
-  } | null;
-};
 
 const ACCEPT = 'image/jpeg,image/png,image/webp';
 const MAX = 10 * 1024 * 1024;
 
-export function StudioForm({ t }: { t: Pick<Dictionary, 'studio' | 'urlErrors' | 'history' | 'common'> }) {
+export function StudioForm({ t }: { t: Pick<Dictionary, 'studio' | 'history' | 'common'> }) {
   const S = t.studio;
   const router = useRouter();
-  const ids = { url: useId(), file: useId(), name: useId(), rights: useId() };
-  const [mode, setMode] = useState<Mode>('upload');
+  const ids = { file: useId(), name: useId(), rights: useId() };
   const [health, setHealth] = useState<Health>(null);
-  const [url, setUrl] = useState('');
-  const [resolving, setResolving] = useState(false);
-  const [resolved, setResolved] = useState<Resolved | null>(null);
-  const [pickedImage, setPickedImage] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState('');
   const [size, setSize] = useState({ height: '', width: '', depth: '' });
@@ -78,42 +59,11 @@ export function StudioForm({ t }: { t: Pick<Dictionary, 'studio' | 'urlErrors' |
   const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
   useEffect(() => () => void (preview && URL.revokeObjectURL(preview)), [preview]);
 
-  const needsUpload =
-    mode === 'upload' || (resolved !== null && (resolved.metadataStatus !== 'ok' || !resolved.metadata?.images.length));
-  const imageChosen = needsUpload ? Boolean(file) : Boolean(pickedImage);
+  // Marketplaces block automated reading, so the seller always uploads the photo.
+  const imageChosen = Boolean(file);
   const fileProblem = file && (file.size > MAX || !ACCEPT.split(',').includes(file.type)) ? S.requirements[0] : null;
   const serviceDown = health !== null && !health.validationAvailable;
-  const canSubmit = imageChosen && !fileProblem && rights && !submitting && !serviceDown && (mode === 'upload' || resolved);
-
-  function urlError(code: string): string {
-    if (code.startsWith('SHORT_LINK')) return t.urlErrors.SHORT_LINK;
-    return (t.urlErrors as Record<string, string>)[code] ?? t.urlErrors.INVALID_URL;
-  }
-
-  async function checkUrl() {
-    setError(null);
-    setResolved(null);
-    setPickedImage(null);
-    setResolving(true);
-    try {
-      const r = await fetch('/api/marketplace/resolve', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ url }),
-      });
-      const body = await r.json();
-      if (r.status === 429) setError(S.rateLimited);
-      else if (!body.ok) setError(urlError(body.code ?? body.error ?? 'INVALID_URL'));
-      else {
-        setResolved(body as Resolved);
-        if (body.metadata?.title && !name) setName(body.metadata.title);
-      }
-    } catch {
-      setError(t.common.offline);
-    } finally {
-      setResolving(false);
-    }
-  }
+  const canSubmit = imageChosen && !fileProblem && rights && !submitting && !serviceDown;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -121,12 +71,10 @@ export function StudioForm({ t }: { t: Pick<Dictionary, 'studio' | 'urlErrors' |
     setSubmitting(true);
     setError(null);
     const fd = new FormData();
-    fd.set('source', mode === 'url' ? 'marketplace' : 'upload');
+    fd.set('source', 'upload');
     fd.set('rightsConfirmed', 'true');
     if (name.trim()) fd.set('name', name.trim());
-    if (mode === 'url' && resolved) fd.set('productUrl', resolved.originalUrl);
-    if (needsUpload && file) fd.set('file', file);
-    else if (pickedImage) fd.set('imageUrl', pickedImage);
+    if (file) fd.set('file', file);
     const dims = Object.fromEntries(
       Object.entries(size)
         .filter(([, v]) => v.trim() !== '')
@@ -143,7 +91,7 @@ export function StudioForm({ t }: { t: Pick<Dictionary, 'studio' | 'urlErrors' |
       if (r.status === 503) setError(body.error === 'SERVICE_UNAVAILABLE' ? S.serverProblem : S.serviceDown);
       else if (r.status === 429) setError(S.rateLimited);
       else if (r.status === 413) setError(S.requirements[0]!);
-      else setError(body.error && body.error in t.urlErrors ? urlError(body.error) : S.genericError);
+      else setError(S.genericError);
     } catch {
       setError(t.common.offline);
     }
@@ -161,133 +109,62 @@ export function StudioForm({ t }: { t: Pick<Dictionary, 'studio' | 'urlErrors' |
         </div>
       )}
 
-      <div role="radiogroup" aria-label="Input" className="inline-flex rounded-full border border-sand bg-white p-1">
-        {(['upload', 'url'] as const).map((m) => (
-          <button
-            key={m}
-            type="button"
-            role="radio"
-            aria-checked={mode === m}
-            onClick={() => {
-              setMode(m);
-              setError(null);
-            }}
-            className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${mode === m ? 'bg-ink text-white' : 'text-ink-soft hover:text-ink'}`}
+      <section className="grid gap-6 md:grid-cols-[1.1fr_0.9fr]">
+        <div>
+          <p className="label">{S.fileLabel}</p>
+          <label
+            htmlFor={ids.file}
+            className="flex min-h-72 cursor-pointer flex-col items-center justify-center gap-3 rounded-[var(--radius-card)] border-2 border-dashed border-ink bg-kunyit-soft p-5 text-center transition-colors focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-nila hover:bg-kunyit/30"
           >
-            {m === 'url' ? S.tabUrl : S.tabUpload}
-          </button>
-        ))}
-      </div>
-
-      {mode === 'url' && (
-        <section className="space-y-4">
-          <div>
-            <label htmlFor={ids.url} className="label">
-              {S.urlLabel}
-            </label>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <input
-                id={ids.url}
-                type="url"
-                inputMode="url"
-                className="field"
-                placeholder={S.urlPlaceholder}
-                value={url}
-                onChange={(e) => {
-                  setUrl(e.target.value);
-                  setResolved(null);
-                }}
-              />
-              <button type="button" className="btn-secondary shrink-0" disabled={!url.trim() || resolving} onClick={checkUrl}>
-                {resolving ? t.common.loading : S.checkUrl}
-              </button>
-            </div>
-          </div>
-          {resolved && (
-            <div className="space-y-4 card p-5">
-              <p className="text-sm">
-                <span className="font-medium">{t.history.source[resolved.marketplace]}</span> ·{' '}
-                <span className="break-all text-ink-soft">{resolved.originalUrl}</span>
-              </p>
-              {resolved.metadata && (
-                <dl className="grid gap-1 text-sm text-ink-soft">
-                  {resolved.metadata.title && <dd className="text-ink">{resolved.metadata.title}</dd>}
-                  {resolved.metadata.price !== null && resolved.metadata.currency && (
-                    <dd>
-                      {new Intl.NumberFormat('id-ID', { style: 'currency', currency: resolved.metadata.currency }).format(
-                        resolved.metadata.price,
-                      )}
-                    </dd>
-                  )}
-                  {resolved.metadata.seller && <dd>{resolved.metadata.seller}</dd>}
-                </dl>
-              )}
-              {!needsUpload && resolved.metadata ? (
-                <fieldset>
-                  <legend className="label">{S.pickOne}</legend>
-                  <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-                    {resolved.metadata.images.map((src, i) => (
-                      <label
-                        key={src}
-                        className={`relative cursor-pointer overflow-hidden rounded-xl border-2 ${pickedImage === src ? 'border-terracotta' : 'border-transparent'}`}
-                      >
-                        <input
-                          type="radio"
-                          name="listingImage"
-                          value={src}
-                          className="sr-only"
-                          checked={pickedImage === src}
-                          onChange={() => setPickedImage(src)}
-                        />
-                        {/* eslint-disable-next-line @next/next/no-img-element -- external listing image, allowlisted CDN */}
-                        <img
-                          src={src}
-                          alt={`${i + 1}`}
-                          referrerPolicy="no-referrer"
-                          className="aspect-square w-full bg-cream object-cover"
-                        />
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
-              ) : (
-                <p className="rounded-xl bg-warn-soft p-4 text-sm">{S.urlUnreadable}</p>
-              )}
-            </div>
-          )}
-        </section>
-      )}
-
-      {needsUpload && (
-        <section className="grid gap-6 md:grid-cols-[1fr_1fr]">
-          <div>
-            <label htmlFor={ids.file} className="label">
-              {S.fileLabel}
-            </label>
-            <input
-              id={ids.file}
-              type="file"
-              accept={ACCEPT}
-              className="field file:mr-4 file:rounded-full file:border-0 file:bg-cream file:px-4 file:py-2"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            />
-            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-ink-soft">
-              {S.requirements.map((r) => (
-                <li key={r}>{r}</li>
-              ))}
-            </ul>
-            {fileProblem && <p className="mt-2 text-sm text-danger">{fileProblem}</p>}
-          </div>
-          <div className="flex min-h-56 items-center justify-center overflow-hidden card p-3">
             {preview ? (
               // eslint-disable-next-line @next/next/no-img-element -- local blob preview
-              <img src={preview} alt={S.fileLabel} className="max-h-72 w-auto rounded-lg object-contain" />
+              <img src={preview} alt={S.fileLabel} className="max-h-64 w-auto rounded-lg object-contain" />
             ) : (
-              <p className="text-sm text-ink-soft">{S.fileLabel}</p>
+              <>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 48 48"
+                  className="size-14 text-ink"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <path d="M6 16a4 4 0 0 1 4-4h6l3-5h10l3 5h6a4 4 0 0 1 4 4v20a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" />
+                  <circle cx="24" cy="25" r="8" />
+                </svg>
+                <span className="text-lg font-extrabold">{S.pickFile}</span>
+                <span className="text-sm text-ink-soft">{S.pickFileHint}</span>
+              </>
             )}
-          </div>
-        </section>
-      )}
+            {file && (
+              <span className="text-sm">
+                <span className="break-all text-ink-soft">{file.name}</span>{' '}
+                <span className="font-bold text-nila underline">{S.changeFile}</span>
+              </span>
+            )}
+          </label>
+          <input
+            id={ids.file}
+            type="file"
+            accept={ACCEPT}
+            aria-label={S.fileLabel}
+            className="sr-only"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          />
+          {fileProblem && <p className="mt-2 text-sm font-semibold text-danger">{fileProblem}</p>}
+        </div>
+        <div className="self-start rounded-[var(--radius-card)] bg-cream p-5">
+          <p className="font-bold">{S.tipsTitle}</p>
+          <ul className="mt-3 space-y-2 text-sm text-ink-soft">
+            {S.requirements.map((r) => (
+              <li key={r} className="flex gap-2.5">
+                <span aria-hidden="true" className="mt-1.5 size-2 shrink-0 rounded-full bg-kunyit" />
+                {r}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
       <section className="grid gap-6 md:grid-cols-2">
         <div>
@@ -325,7 +202,7 @@ export function StudioForm({ t }: { t: Pick<Dictionary, 'studio' | 'urlErrors' |
           type="checkbox"
           checked={rights}
           onChange={(e) => setRights(e.target.checked)}
-          className="mt-1 size-5 accent-terracotta"
+          className="mt-1 size-5 accent-nila"
         />
         <label htmlFor={ids.rights} className="text-sm">
           {S.rights}
