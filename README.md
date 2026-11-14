@@ -54,8 +54,6 @@ AR-LOKAL membantu penjual tas, sepatu, perhiasan, keramik, dan kerajinan tangan 
 7. [Dokumentasi penggunaan AI](#dokumentasi-penggunaan-ai)
 8. [Atribusi](#atribusi)
 9. [Keterbatasan](#keterbatasan)
-10. [Lisensi](#lisensi)
-
 ---
 
 ## Masalah dan solusi
