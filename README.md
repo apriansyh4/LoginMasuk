@@ -7,7 +7,7 @@ AR-LOKAL membantu penjual tas, sepatu, perhiasan, keramik, dan kerajinan tangan 
 | | |
 |---|---|
 | **Aplikasi** | https://login-masuk.vercel.app/ |
-| **Video demo** | [ISI LINK YOUTUBE] |
+| **Video demo** | https://youtu.be/Mu7Hixaz-6w?si=eAdM1NZhlA4AOfx2 |
 | **Kompetisi** | LOGICODIX 2026 Hackathon Competition |
 | **Kategori** | Web |
 | **Subtema** | Local MSME & Creative Economy |
