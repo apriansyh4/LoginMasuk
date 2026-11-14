@@ -260,7 +260,6 @@ Batasan yang disampaikan ke pengguna: model adalah perkiraan, sisi belakang prod
 ### AI dalam proses pengembangan
 
 - **Claude (Anthropic)** dipakai sebagai asisten pemrograman untuk menulis dan meninjau sebagian besar kode (frontend, ai-service, migrasi database, pengujian), mendiagnosis error instalasi, menyusun dokumentasi, dan menyarankan desain antarmuka.
-- [ISI BILA ADA ALAT AI LAIN YANG DIPAKAI TIM, atau hapus baris ini]
 
 Tim meninjau, menjalankan, menguji, dan bertanggung jawab penuh atas seluruh kode, keamanan, dan fungsi aplikasi, termasuk kode yang dibantu AI.
 
