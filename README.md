@@ -6,12 +6,12 @@ AR-LOKAL membantu penjual tas, sepatu, perhiasan, keramik, dan kerajinan tangan 
 
 | | |
 |---|---|
-| **Aplikasi** | https://login-masuk.vercel.app |
+| **Aplikasi** | https://login-masuk.vercel.app/ |
 | **Video demo** | [ISI LINK YOUTUBE] |
 | **Kompetisi** | LOGICODIX 2026 Hackathon Competition |
 | **Kategori** | Web |
 | **Subtema** | Local MSME & Creative Economy |
-| **Nama tim** | [ISI NAMA TIM] |
+| **Nama tim** | LoginMasuk |
 
 **Anggota tim**
 
@@ -30,7 +30,7 @@ AR-LOKAL membantu penjual tas, sepatu, perhiasan, keramik, dan kerajinan tangan 
 
 | Email | Kata sandi |
 |---|---|
-| [ISI EMAIL AKUN DEMO] | [ISI KATA SANDI DEMO] |
+| loginmasuk@gmail.com | LoginMasuk_12 |
 
 1. Buka https://login-masuk.vercel.app lalu **Masuk** dengan akun demo.
 2. Buka **Riwayat** dan pilih salah satu produk contoh. Model 3D bisa diputar dan diperbesar.
@@ -38,7 +38,7 @@ AR-LOKAL membantu penjual tas, sepatu, perhiasan, keramik, dan kerajinan tangan 
 4. Di halaman model, ubah **Ukuran asli produk** (misalnya tinggi 20 cm). Model dan AR langsung menyesuaikan.
 5. Untuk mencoba dari awal: buka **Studio**, unggah foto satu produk dengan latar polos, tunggu hasil validasi, lalu tekan **Buat model 3D**.
 
-> **Jam aktif layanan AI:** [ISI JAM, misalnya 08.00–22.00 WIB] selama masa penilaian.
+> **Jam aktif layanan AI:** 08.00–22.00 WIB, selama masa penilaian.
 > Layanan AI (validasi foto dan pembuatan model 3D baru) berjalan di laptop tim karena modelnya butuh RAM ±16 GB dan tidak ada layanan cloud gratis yang mampu menjalankannya. Di luar jam aktif, Studio menampilkan keterangan *"Layanan validasi AI sedang tidak tersedia"* dan tidak menyimpan apa pun. Langkah 1–4 (melihat model, AR, ubah ukuran) **selalu bisa dicoba 24 jam**.
 
 ---
