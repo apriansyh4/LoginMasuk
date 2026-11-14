@@ -60,7 +60,7 @@ AR-LOKAL membantu penjual tas, sepatu, perhiasan, keramik, dan kerajinan tangan 
 
 ## Masalah dan solusi
 
-**Masalah.** Pelaku UMKM aksesori fesyen dan kerajinan menjual produknya hanya dengan foto dua dimensi. Foto tidak memperlihatkan bentuk utuh dan ukuran produk, sehingga calon pembeli ragu. Membuat model 3D atau pengalaman AR biasanya butuh studio, perangkat lunak berbayar, atau jasa desainer yang tidak terjangkau UMKM.
+**Masalah.** Pelaku UMKM aksesoris fashion dan kerajinan menjual produknya hanya dengan foto dua dimensi. Foto tidak memperlihatkan bentuk utuh dan ukuran produk, sehingga calon pembeli ragu. Membuat model 3D atau pengalaman AR biasanya butuh studio, perangkat lunak berbayar, atau jasa desainer yang tidak terjangkau UMKM.
 
 **Solusi.** AR-LOKAL adalah aplikasi web yang:
 
@@ -75,7 +75,7 @@ Semua AI memakai model open-source yang berjalan di server sendiri. Tidak ada la
 
 | Pengguna | Kebutuhan |
 |---|---|
-| Penjual UMKM fesyen dan kerajinan | Menampilkan produk secara meyakinkan tanpa biaya modeling 3D |
+| Penjual UMKM fashion dan kerajinan | Menampilkan produk secara meyakinkan tanpa biaya modeling 3D |
 | Calon pembeli | Melihat bentuk dan ukuran produk sebelum membeli |
 
 ---
@@ -290,9 +290,3 @@ Tidak ada template UI pihak ketiga. AR-LOKAL tidak berafiliasi dengan Shopee ata
 - AR membutuhkan HP dengan ARCore (Android) atau ARKit (iPhone/iPad).
 
 Dokumentasi teknis lain: [Arsitektur](docs/ARCHITECTURE.md), [Keamanan](docs/SECURITY.md), [Keputusan desain](docs/DECISIONS.md), [Perangkat keras](docs/HARDWARE.md), [Laporan uji](docs/TEST_REPORT.md).
-
----
-
-## Lisensi
-
-Kode proyek: [PILIH LISENSI, misalnya MIT, lalu tambahkan file `LICENSE` di direktori utama]. Lisensi komponen pihak ketiga mengikuti pemiliknya masing-masing (lihat [`docs/ATTRIBUTION.md`](docs/ATTRIBUTION.md)).
