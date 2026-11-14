@@ -29,7 +29,7 @@ export default async function AiPage() {
   const c = CONTENT[await getLang()];
   return (
     <article className="mx-auto max-w-2xl">
-      <h1 className="font-display text-4xl font-extrabold">{c.title}</h1>
+      <h1 className="page-title">{c.title}</h1>
       <p className="mt-4 leading-relaxed text-ink-soft">{c.intro}</p>
       {c.uses.map(([h, p]) => (
         <section key={h} className="mt-8">

@@ -1,34 +1,48 @@
 @import 'tailwindcss';
 @import '@fontsource-variable/plus-jakarta-sans/index.css';
+@import '@fontsource-variable/bricolage-grotesque/index.css';
 
-/* AR-LOKAL "lapak" palette: colours from Indonesian craft and market life.
-   kunyit = turmeric, nila = indigo dye (batik), daun = banana leaf, cabai = chili.
-   Text pairs: ink on white 15.9:1, ink-soft on white 8.1:1, nila on white 10.6:1,
-   ink on kunyit 9.6:1, cabai on white 6.0:1, kunyit-dark on white 5.4:1 (WCAG AA). */
+/* AR-LOKAL "Etalase Malam" palette: a night-market stall (indigo) lit by turmeric,
+   with jambu (rose apple), toska and lilac stickers.
+   Text pairs: ink on paper 16.4:1, ink-soft on paper 8.3:1, nila on white 8.9:1,
+   ink on kunyit 11.1:1, ink on jambu 7.0:1, ink on toska 9.4:1, kunyit on ink 11.1:1 (WCAG AA+). */
 @theme {
-  --color-paper: #ffffff; /* page background */
-  --color-cream: #f1f3fb; /* quiet surfaces (indigo-tinted) */
-  --color-sand: #d6daee; /* hairline borders */
-  --color-ink: #141a46; /* text, sticker outlines */
-  --color-ink-soft: #474c6e; /* secondary text */
-  --color-nila: #1f2c8f; /* links, active states */
-  --color-nila-dark: #172170;
-  --color-indigo: #1f2c8f;
-  --color-kunyit: #f6b40e; /* brand yellow: hero band, primary buttons */
-  --color-kunyit-soft: #fff2c7;
-  --color-kunyit-dark: #8a5a00; /* yellow-family text on white */
-  --color-sage: #1e7a4c; /* daun: success */
+  --color-paper: #f6f5fb; /* page background */
+  --color-cream: #eceaf4; /* quiet surfaces */
+  --color-sand: #d9d6ea; /* hairline borders */
+  --color-ink: #14132e; /* night indigo: text, dark sections */
+  --color-ink-soft: #4a4870; /* secondary text */
+  --color-nila: #3b36a8; /* links, focus */
+  --color-nila-dark: #2a2680;
+  --color-indigo: #3b36a8;
+  --color-kunyit: #ffc23d; /* brand yellow: primary actions */
+  --color-kunyit-soft: #fff0c2;
+  --color-kunyit-dark: #7a5200; /* yellow-family text on light */
+  --color-jambu: #ff7a8a;
+  --color-jambu-soft: #ffe1e5;
+  --color-toska: #34d1bf;
+  --color-toska-soft: #d5f6f1;
+  --color-lilac: #b9a6ff;
+  --color-lilac-soft: #ece6ff;
+  --color-lavender: #d8d6f2; /* secondary text on ink */
+  --color-sage: #1e7a4c; /* success */
   --color-sage-soft: #ddf2e5;
-  --color-danger: #c8102e; /* cabai */
+  --color-danger: #c8102e;
   --color-danger-soft: #fde4e7;
-  --color-warn-soft: #fff2c7;
+  --color-warn-soft: #fff0c2;
 
-  --font-display: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Bricolage Grotesque Variable', 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
 
-  --shadow-soft: 0 1px 2px rgb(20 26 70 / 0.05);
-  --shadow-stiker: 4px 4px 0 var(--color-ink);
-  --radius-card: 1rem;
+  --shadow-soft: 0 1px 2px rgb(20 19 46 / 0.05);
+  --shadow-stiker: 6px 6px 0 var(--color-ink);
+  --radius-card: 1.75rem;
+
+  --animate-ngambang: ngambang 4s ease-in-out infinite;
+  @keyframes ngambang {
+    0%, 100% { transform: translateY(0) rotate(4deg); }
+    50% { transform: translateY(-10px) rotate(4deg); }
+  }
 }
 
 html {
@@ -62,19 +76,19 @@ html {
 
 /* The one loud device: a market-sticker / price-tag look (thick ink outline + hard offset shadow). */
 @utility stiker {
-  @apply rounded-[var(--radius-card)] border-2 border-ink bg-white shadow-[var(--shadow-stiker)];
+  @apply rounded-[var(--radius-card)] border-[2.5px] border-ink bg-white shadow-[var(--shadow-stiker)];
 }
 
 @utility btn {
-  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition-[transform,box-shadow,background-color] disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 text-sm font-bold transition-[transform,box-shadow,background-color] disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-primary {
-  @apply btn border-2 border-ink bg-kunyit text-ink shadow-[3px_3px_0_var(--color-ink)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[4px_4px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:shadow-none disabled:hover:translate-0;
+  @apply btn border-2 border-ink bg-kunyit font-extrabold text-ink shadow-[4px_4px_0_var(--color-jambu)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_var(--color-jambu)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:shadow-none disabled:hover:translate-0;
 }
 
 @utility btn-secondary {
-  @apply btn border-2 border-ink bg-white text-ink hover:bg-kunyit-soft;
+  @apply btn border-2 border-ink bg-white text-ink shadow-[4px_4px_0_var(--color-toska)] hover:bg-toska-soft;
 }
 
 @utility btn-ghost {
@@ -82,7 +96,7 @@ html {
 }
 
 @utility field {
-  @apply block w-full rounded-xl border-2 border-sand bg-white px-4 py-3 text-base text-ink placeholder:text-ink-soft/70 focus:border-nila;
+  @apply block w-full rounded-2xl border-2 border-sand bg-white px-4 py-3 text-base text-ink placeholder:text-ink-soft/70 focus:border-nila;
 }
 
 @utility label {
@@ -98,4 +112,14 @@ html {
 @utility bg-kawung {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23141a46' stroke-opacity='.11' stroke-width='1.6'%3E%3Cellipse cx='28' cy='14' rx='7' ry='12'/%3E%3Cellipse cx='28' cy='42' rx='7' ry='12'/%3E%3Cellipse cx='14' cy='28' rx='12' ry='7'/%3E%3Cellipse cx='42' cy='28' rx='12' ry='7'/%3E%3Ccircle cx='28' cy='28' r='2.2' fill='%23141a46' fill-opacity='.11' stroke='none'/%3E%3C/g%3E%3C/svg%3E");
   background-size: 56px 56px;
+}
+
+/* Nav link on the dark header. */
+@utility nav-item {
+  @apply btn font-semibold text-lavender hover:bg-white/10 hover:text-white;
+}
+
+/* Big page title in the display face. */
+@utility page-title {
+  @apply font-display text-4xl leading-[1] font-extrabold tracking-[-0.025em] text-ink md:text-5xl;
 }

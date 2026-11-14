@@ -24,7 +24,7 @@ export default async function AccountPage() {
     'Ekspor data dan hapus akun akan segera hadir. Sementara itu, Anda dapat menghapus setiap kiriman (beserta filenya) dari Riwayat.';
   return (
     <div className="mx-auto max-w-xl space-y-6">
-      <h1 className="font-display text-4xl font-extrabold">{t.nav.account}</h1>
+      <h1 className="page-title">{t.nav.account}</h1>
       <div className="card p-6">
         <p className="text-sm text-ink-soft">{t.auth.email}</p>
         <p className="mt-1">{user.email}</p>

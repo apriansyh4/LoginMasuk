@@ -58,7 +58,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
   return (
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="font-display text-4xl font-extrabold">{H.title}</h1>
+        <h1 className="page-title">{H.title}</h1>
         <Link href="/studio" className="btn-primary">
           {t.landing.cta}
         </Link>
@@ -116,8 +116,8 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
           const reasons = parseReasons(r.rejection_reasons);
           const status = (r.status ?? 'pending') as (typeof STATUSES)[number];
           return (
-            <li key={r.id} className="flex flex-col overflow-hidden card">
-              <div className="flex aspect-[4/3] items-center justify-center bg-cream">
+            <li key={r.id} className="flex flex-col overflow-hidden rounded-[var(--radius-card)] border-[2.5px] border-ink bg-white shadow-[6px_6px_0_var(--color-kunyit)]">
+              <div className="flex aspect-[4/3] items-center justify-center border-b-2 border-ink bg-lilac-soft">
                 {thumb ? (
                   // eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL
                   <img src={thumb} alt={r.name ?? ''} className="h-full w-full object-contain p-3" loading="lazy" />
@@ -127,7 +127,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
               </div>
               <div className="flex flex-1 flex-col gap-2 p-5 text-sm">
                 <div className="flex items-start justify-between gap-3">
-                  <p className="font-medium text-ink">{r.name ?? H.untitled}</p>
+                  <p className="font-display text-lg leading-tight font-extrabold text-ink">{r.name ?? H.untitled}</p>
                   <span
                     className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
                       status === 'rejected' || status === 'failed'

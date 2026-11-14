@@ -10,7 +10,7 @@ export function NavLink({ href, also = [], children }: { href: string; also?: st
     <Link
       href={href}
       aria-current={active ? 'page' : undefined}
-      className={active ? 'btn bg-kunyit-soft font-extrabold text-ink shadow-[inset_0_-3px_0_var(--color-kunyit)]' : 'btn-ghost'}
+      className={active ? 'btn bg-kunyit font-extrabold text-ink' : 'nav-item'}
     >
       {children}
     </Link>

@@ -35,7 +35,7 @@ export default async function ModelPage({ params }: { params: Promise<{ productI
   if (!model || model.status !== 'ready') {
     return (
       <div className="mx-auto max-w-lg card p-8">
-        <h1 className="font-display text-2xl font-extrabold">{product.name ?? t.history.untitled}</h1>
+        <h1 className="page-title">{product.name ?? t.history.untitled}</h1>
         <p className="mt-4 text-ink-soft">{model?.status === 'disabled' ? M.disabled : M.none}</p>
         <Link href={`/studio/${productId}`} className="mt-6 btn-secondary">
           {t.gen.backToResult}
@@ -59,7 +59,7 @@ export default async function ModelPage({ params }: { params: Promise<{ productI
   return (
     <div>
       <p className="eyebrow">{M.title}</p>
-      <h1 className="mt-2 font-display text-3xl font-extrabold">{product.name ?? t.history.untitled}</h1>
+      <h1 className="mt-2 page-title">{product.name ?? t.history.untitled}</h1>
       <div className="mt-8 grid gap-8 md:grid-cols-[1.2fr_0.8fr]">
         <div>
           {signed?.signedUrl ? (
@@ -78,13 +78,13 @@ export default async function ModelPage({ params }: { params: Promise<{ productI
           )}
         </div>
         <aside className="space-y-4">
-          <p className="inline-block rounded-full bg-indigo px-3 py-1 text-xs font-semibold tracking-wide text-white">
+          <p className="inline-block rounded-full bg-lilac px-3.5 py-1.5 text-xs font-extrabold text-ink">
             {t.common.aiLabel}
           </p>
           <div
-            className={`rounded-xl p-4 ${model.quality_status === 'good' ? 'bg-sage-soft' : model.quality_status === 'fair' ? 'bg-warn-soft' : 'bg-danger-soft'}`}
+            className={`rounded-2xl p-5 ${model.quality_status === 'good' ? 'bg-sage-soft' : model.quality_status === 'fair' ? 'bg-warn-soft' : 'bg-danger-soft'}`}
           >
-            <p className="font-medium">{M.quality[model.quality_status as 'good' | 'fair' | 'poor']}</p>
+            <p className="font-display text-lg font-extrabold">{M.quality[model.quality_status as 'good' | 'fair' | 'poor']}</p>
             {model.quality_status !== 'good' && <p className="mt-1 text-sm">{M.qualityWarning}</p>}
             <ul className="mt-2 list-disc space-y-0.5 pl-5 text-sm text-ink-soft">
               {notes.map((n) => (

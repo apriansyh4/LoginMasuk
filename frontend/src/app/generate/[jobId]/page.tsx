@@ -25,7 +25,7 @@ export default async function GeneratePage({ params }: { params: Promise<{ jobId
   return (
     <div className="mx-auto max-w-2xl">
       <p className="eyebrow">{t.gen.title}</p>
-      <h1 className="mt-2 font-display text-3xl font-extrabold">{product?.name ?? t.history.untitled}</h1>
+      <h1 className="mt-2 page-title">{product?.name ?? t.history.untitled}</h1>
       <div className="mt-8">
         <JobProgress initial={job as JobRow} cpuMode={Boolean(health?.cpuMode)} t={{ gen: t.gen, common: t.common }} />
       </div>

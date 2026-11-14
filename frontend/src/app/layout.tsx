@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description: 'Ubah satu foto produk UMKM menjadi model 3D dan AR dengan AI.',
 };
 
-export const viewport: Viewport = { themeColor: '#f6b40e', width: 'device-width', initialScale: 1 };
+export const viewport: Viewport = { themeColor: '#14132e', width: 'device-width', initialScale: 1 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { lang, t } = await getDict();

@@ -61,7 +61,7 @@ export default async function ValidationResultPage({ params }: { params: Promise
   return (
     <div className="mx-auto max-w-4xl">
       <p className="eyebrow">{R.title}</p>
-      <h1 className="mt-2 font-display text-3xl font-extrabold">{product.name ?? t.history.untitled}</h1>
+      <h1 className="mt-2 page-title">{product.name ?? t.history.untitled}</h1>
       <div className="mt-8 grid gap-8 md:grid-cols-[0.9fr_1.1fr]">
         <div className="flex min-h-64 items-center justify-center overflow-hidden card p-4">
           {signed ? (

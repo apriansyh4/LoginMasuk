@@ -16,7 +16,7 @@ const ITEMS: [string, string, string][] = [
 export default function CreditsPage() {
   return (
     <article className="mx-auto max-w-2xl">
-      <h1 className="font-display text-4xl font-extrabold">Kredit &amp; Atribusi</h1>
+      <h1 className="page-title">Kredit &amp; Atribusi</h1>
       <p className="mt-4 text-ink-soft">
         Daftar lengkap beserta versinya ada di <code>docs/ATTRIBUTION.md</code>. AR-LOKAL dibangun di atas karya open-source
         berikut.

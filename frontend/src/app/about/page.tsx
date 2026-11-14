@@ -7,7 +7,7 @@ export default async function AboutPage() {
   const { t } = await getDict();
   return (
     <article className="mx-auto max-w-2xl">
-      <h1 className="font-display text-4xl font-extrabold">{t.landing.howTitle}</h1>
+      <h1 className="page-title">{t.landing.howTitle}</h1>
       <ol className="mt-8 space-y-6">
         {t.landing.how.map(([h, p], i) => (
           <li key={h} className="card p-6">

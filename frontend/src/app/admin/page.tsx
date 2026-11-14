@@ -26,7 +26,7 @@ export default async function AdminPage() {
   ];
   return (
     <div>
-      <h1 className="font-display text-4xl font-extrabold">Admin</h1>
+      <h1 className="page-title">Admin</h1>
       <dl className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map(([k, v]) => (
           <div key={k} className="card p-5">

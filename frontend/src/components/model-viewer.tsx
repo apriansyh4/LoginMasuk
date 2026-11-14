@@ -111,7 +111,11 @@ export function ModelViewer({
   }
   return (
     <div>
-      <div className="relative aspect-square overflow-hidden rounded-[var(--radius-card)] border-2 border-ink bg-white bg-kawung">
+      <div className="relative aspect-square overflow-hidden rounded-[var(--radius-card)] bg-ink bg-[radial-gradient(circle_at_50%_58%,rgb(255_194_61/0.32),rgb(255_122_138/0.10)_42%,transparent_68%)]">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-[14%] left-1/2 h-[10%] w-1/2 -translate-x-1/2 rounded-[50%] border-2 border-kunyit/45"
+        />
         {ready && (
           <model-viewer
             ref={ref}
@@ -135,10 +139,10 @@ export function ModelViewer({
         )}
         {(!ready || progress < 1) && (
           <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4" role="status">
-            <p className="text-center text-sm text-ink-soft">{loadingText}</p>
-            <div className="mx-auto mt-2 h-1.5 max-w-xs rounded-full bg-sand">
+            <p className="text-center text-sm text-lavender">{loadingText}</p>
+            <div className="mx-auto mt-2 h-1.5 max-w-xs rounded-full bg-white/15">
               <div
-                className="h-1.5 rounded-full bg-nila transition-[width]"
+                className="h-1.5 rounded-full bg-kunyit transition-[width]"
                 style={{ width: `${Math.round(progress * 100)}%` }}
               />
             </div>
@@ -149,7 +153,7 @@ export function ModelViewer({
         <div className="mt-4 space-y-2">
           {canAR ? (
             <>
-              <button type="button" onClick={startAR} className="btn-primary w-full sm:w-auto">
+              <button type="button" onClick={startAR} className="btn-primary min-h-13 w-full text-base">
                 {arTexts.button}
               </button>
               <p className="text-sm text-ink-soft">{arTexts.hint}</p>
