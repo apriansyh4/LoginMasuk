@@ -19,7 +19,7 @@ AR-LOKAL membantu penjual tas, sepatu, perhiasan, keramik, dan kerajinan tangan 
 |---|---|
 | Apriansyah Sitompul | 0920250058 |
 | Ilfaj Al-Nur | 0920250067 |
-| Muhammad Bintang Basev Al-Qard | 0920250070 |
+| Muhammad Bintang Basev Al Qadr | 0920250070 |
 | Syalwa Insani | 0920250080 |
 
 ---
