@@ -60,7 +60,7 @@ The validated mask is stored at `{original_image_key}.mask.png` (random, under t
 Login, register and reset run server-side so they can be rate-limited by IP. Responses are uniform (same message for an unknown email and a wrong password; register always lands on "check your email"), which prevents account enumeration.
 
 ## ADR-018 Self-hosted fonts
-Fraunces and Inter come from `@fontsource-variable` (OFL), so no Google Fonts requests are made (privacy, and it works offline).
+Bricolage Grotesque (headings) and Plus Jakarta Sans (body) come from `@fontsource-variable` (OFL), so no Google Fonts requests are made (privacy, and it works offline).
 
 ## ADR-019 Docker-less verification harness
 `scripts/no-docker-stack/` runs real GoTrue, PostgREST, Supabase Storage (built from source) and Mailpit on embedded Postgres. **Test-only:** normal development uses `supabase start`. Realtime and Studio are not included.

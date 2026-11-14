@@ -11,6 +11,7 @@ const ITEMS: [string, string, string][] = [
   ['Next.js (Vercel)', 'MIT', 'https://github.com/vercel/next.js'],
   ['Supabase', 'Apache-2.0', 'https://github.com/supabase/supabase'],
   ['Plus Jakarta Sans (Tokotype)', 'SIL OFL 1.1', 'https://github.com/tokotype/PlusJakartaSans'],
+  ['Bricolage Grotesque (Mathieu Triay)', 'SIL OFL 1.1', 'https://github.com/ateliertriay/bricolage'],
 ];
 
 export default function CreditsPage() {

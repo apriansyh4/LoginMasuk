@@ -275,8 +275,8 @@ Daftar lengkap beserta versi dan lisensi ada di [`docs/ATTRIBUTION.md`](docs/ATT
 | Kode pihak ketiga yang disertakan | TripoSR (MIT) di `ai-service/third_party/triposr`, dengan lisensi asli dan catatan perubahan |
 | Bobot model | TripoSR, ISNet (via rembg), YOLOX-s, MediaPipe, OpenCLIP |
 | Library | Next.js, React, Tailwind CSS, Supabase, Zod, sharp, model-viewer, FastAPI, PyTorch, OpenCV, trimesh, dan lainnya (MIT/Apache-2.0/BSD) |
-| Font | Plus Jakarta Sans (Tokotype, SIL OFL 1.1) |
-| Motif | Pola batik kawung dibuat sebagai SVG sederhana di `globals.css` |
+| Font | Plus Jakarta Sans (Tokotype, SIL OFL 1.1), Bricolage Grotesque (Mathieu Triay, SIL OFL 1.1) |
+| Ilustrasi | Gambar tas, vas, dan sepatu di halaman Beranda dibuat sendiri oleh tim sebagai SVG di `frontend/src/components/illustrations.tsx` |
 | Data uji | Contoh gambar dari repositori TripoSR (MIT) dan gambar sintetis buatan tim |
 
 Tidak ada template UI pihak ketiga. AR-LOKAL tidak berafiliasi dengan Shopee atau Tokopedia.

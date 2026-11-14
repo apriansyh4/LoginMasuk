@@ -50,6 +50,7 @@ Note: YOLOX weights are trained on COCO (annotations CC BY 4.0). The model is us
 | Font | License | Source |
 |---|---|---|
 | Plus Jakarta Sans (Tokotype) | SIL OFL 1.1 | https://github.com/tokotype/PlusJakartaSans (via @fontsource-variable) |
+| Bricolage Grotesque (Mathieu Triay) | SIL OFL 1.1 | https://github.com/ateliertriay/bricolage (via @fontsource-variable) |
 
 No icon set is used yet.
 
